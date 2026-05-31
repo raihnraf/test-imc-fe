@@ -1,5 +1,8 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, effect, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith } from 'rxjs';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
@@ -32,15 +35,40 @@ export class AdminLayoutComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   readonly permissionService = inject(PermissionService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
-  readonly sidenavOpen = signal(true);
+  readonly isTablet = toSignal(
+    this.breakpointObserver
+      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+      .pipe(
+        map((result) => result.matches),
+        startWith(false),
+      ),
+    { initialValue: false },
+  );
+
+  readonly sidenavMode = computed(() => (this.isTablet() ? 'over' : 'side'));
+  readonly sidenavUserOpened = signal(true);
+  readonly sidenavOpened = computed(() => this.sidenavUserOpened());
   readonly displayName = computed(() => this.authService.user()?.full_name ?? 'User');
+
+  constructor() {
+    effect(() => {
+      if (this.isTablet()) {
+        this.sidenavUserOpened.set(false);
+      }
+    });
+  }
 
   readonly navItems: NavItem[] = [
     { route: '/admin/users', label: 'Users', icon: 'people', permission: '/users' },
     { route: '/admin/levels', label: 'Levels', icon: 'layers', permission: '/levels' },
     { route: '/admin/pages', label: 'Pages', icon: 'description', permission: '/pages' },
   ];
+
+  toggleSidenav(): void {
+    this.sidenavUserOpened.update((v) => !v);
+  }
 
   handleLogout(): void {
     this.authService.logout();

@@ -1,5 +1,5 @@
 <mat-sidenav-container class="layout-container">
-  <mat-sidenav #sidenav [mode]="'side'" [opened]="sidenavOpen()" class="layout-sidenav">
+  <mat-sidenav #sidenav [mode]="sidenavMode()" [opened]="sidenavOpened()" class="layout-sidenav">
     <mat-nav-list>
       @for (item of navItems; track item.route) {
         @if (permissionService.permissions()[item.permission] === true) {
@@ -14,6 +14,11 @@
 
   <mat-sidenav-content>
     <mat-toolbar color="primary" class="layout-toolbar">
+      @if (isTablet()) {
+        <button mat-icon-button aria-label="Toggle navigation" (click)="toggleSidenav()">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
       <span class="toolbar-title">IMC Admin</span>
       <span class="toolbar-spacer"></span>
       <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">

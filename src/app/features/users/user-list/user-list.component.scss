@@ -42,3 +42,8 @@
   white-space: nowrap;
   text-align: right;
 }
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

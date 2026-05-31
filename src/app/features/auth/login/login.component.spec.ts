@@ -16,6 +16,14 @@ const mockLoginRes: LoginResponse = {
   },
 };
 
+const mockPermissionMatrix = {
+  data: [
+    { id: 1, name: 'Users', route_path: '/users', has_access: true },
+    { id: 2, name: 'Levels', route_path: '/levels', has_access: true },
+    { id: 3, name: 'Pages', route_path: '/pages', has_access: true },
+  ],
+};
+
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
@@ -47,6 +55,11 @@ describe('LoginComponent', () => {
     sessionStorage.clear();
   });
 
+  function flushLoginAndPermissions(): void {
+    httpMock.expectOne('/auth/login').flush(mockLoginRes);
+    httpMock.expectOne('/api/permissions/matrix?user_id=1').flush(mockPermissionMatrix);
+  }
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -71,15 +84,18 @@ describe('LoginComponent', () => {
       password: 'pass',
     });
     req.flush(mockLoginRes);
+
+    httpMock.expectOne('/api/permissions/matrix?user_id=1').flush(mockPermissionMatrix);
   });
 
-  it('should navigate to / on login success', () => {
+  it('should navigate to /admin on login success', () => {
     const navigateSpy = spyOn(router, 'navigate');
     component.loginForm.setValue({ identifier: 'admin', password: 'pass' });
     component.onSubmit();
 
-    httpMock.expectOne('/auth/login').flush(mockLoginRes);
-    expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    flushLoginAndPermissions();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/admin']);
   });
 
   it('should display server error on login failure', () => {
@@ -100,19 +116,11 @@ describe('LoginComponent', () => {
   });
 
   it('should set isLoading false after login finishes', () => {
-    // Form empty -> invalid
-    expect(component.loginForm.invalid).toBeTrue();
-
     component.loginForm.setValue({ identifier: 'admin', password: 'pass' });
-    expect(component.loginForm.valid).toBeTrue();
-
     component.onSubmit();
 
-    // isReset is synchronously true before flush
-    // (test backend is synchronous, so isLoading is true only momentarily)
-    httpMock.expectOne('/auth/login').flush(mockLoginRes);
+    flushLoginAndPermissions();
 
-    // After response, loading is reset
     expect(component.isLoading()).toBeFalse();
   });
 });

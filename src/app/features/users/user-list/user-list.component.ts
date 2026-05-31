@@ -1,12 +1,15 @@
 import {
   Component,
+  computed,
   signal,
   inject,
   OnInit,
   OnDestroy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Subject, Subscription, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,6 +57,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   readonly users = signal<User[]>([]);
   readonly totalItems = signal(0);
@@ -65,14 +69,21 @@ export class UserListComponent implements OnInit, OnDestroy {
   readonly statusFilter = signal<boolean | null>(null);
   private searchQuery = signal('');
 
-  readonly displayedColumns: string[] = [
-    'full_name',
-    'username',
-    'email',
-    'level',
-    'status',
-    'actions',
-  ];
+  readonly isTablet = toSignal(
+    this.breakpointObserver
+      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+      .pipe(
+        map((result) => result.matches),
+        startWith(false),
+      ),
+    { initialValue: false },
+  );
+
+  readonly desktopColumns = ['full_name', 'username', 'email', 'level', 'status', 'actions'];
+  readonly tabletColumns = ['full_name', 'status', 'actions'];
+  readonly displayedColumns = computed(() =>
+    this.isTablet() ? this.tabletColumns : this.desktopColumns,
+  );
 
   private searchSubject = new Subject<string>();
   private searchSub: Subscription;

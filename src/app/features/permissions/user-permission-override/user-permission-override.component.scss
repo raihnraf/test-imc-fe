@@ -80,3 +80,14 @@
 .add-button {
   margin-top: 8px;
 }
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 959px) {
+  .override-card {
+    margin: 8px;
+  }
+}

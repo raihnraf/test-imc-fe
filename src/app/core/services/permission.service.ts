@@ -34,11 +34,15 @@ export class PermissionService {
       );
   }
 
-  refreshPermissions(): void {
+  refreshPermissions(): Observable<void> {
     const user = this.authService.user();
-    if (user?.id) {
-      this.loadPermissions(user.id).subscribe();
+    if (!user?.id) {
+      return new Observable((subscriber) => {
+        subscriber.next();
+        subscriber.complete();
+      });
     }
+    return this.loadPermissions(user.id);
   }
 
   loadLevelMatrix(levelId: number): Observable<PermissionEntry[]> {

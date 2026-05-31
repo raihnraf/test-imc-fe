@@ -76,7 +76,7 @@ describe('PermissionService', () => {
   });
 
   it('refreshPermissions should call loadPermissions with auth user id', () => {
-    service.refreshPermissions();
+    service.refreshPermissions().subscribe();
 
     const req = httpMock.expectOne('/api/permissions/matrix?user_id=42');
     expect(req.request.method).toBe('GET');

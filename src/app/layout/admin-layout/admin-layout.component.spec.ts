@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { of } from 'rxjs';
 import { AdminLayoutComponent } from './admin-layout.component';
 import { AuthService } from '../../core/services/auth.service';
 import { PermissionService } from '../../core/services/permission.service';
@@ -17,6 +19,10 @@ describe('AdminLayoutComponent', () => {
     full_name: 'Admin User',
     username: 'admin',
     level_id: 1,
+  };
+
+  const mockBreakpointObserver = {
+    observe: jasmine.createSpy('observe').and.returnValue(of({ matches: false })),
   };
 
   function setupWithPermissions(perms: Record<string, boolean>): void {
@@ -36,6 +42,7 @@ describe('AdminLayoutComponent', () => {
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: PermissionService, useValue: permSpy },
+        { provide: BreakpointObserver, useValue: mockBreakpointObserver },
       ],
     }).compileComponents();
 
@@ -91,5 +98,40 @@ describe('AdminLayoutComponent', () => {
     setupWithPermissions({});
     const title = fixture.nativeElement.querySelector('.toolbar-title');
     expect(title.textContent).toContain('IMC Admin');
+  });
+
+  it('should return side mode when not on tablet', () => {
+    mockBreakpointObserver.observe.and.returnValue(of({ matches: false }));
+    setupWithPermissions({});
+    expect(component.sidenavMode()).toBe('side');
+  });
+
+  it('should return over mode when on tablet', () => {
+    mockBreakpointObserver.observe.and.returnValue(of({ matches: true }));
+    setupWithPermissions({});
+    expect(component.sidenavMode()).toBe('over');
+  });
+
+  it('should start sidenav closed on tablet', () => {
+    mockBreakpointObserver.observe.and.returnValue(of({ matches: true }));
+    setupWithPermissions({});
+    fixture.detectChanges();
+    expect(component.sidenavOpened()).toBe(false);
+  });
+
+  it('should start sidenav open on desktop', () => {
+    mockBreakpointObserver.observe.and.returnValue(of({ matches: false }));
+    setupWithPermissions({});
+    expect(component.sidenavOpened()).toBe(true);
+  });
+
+  it('should toggle sidenav user opened state', () => {
+    mockBreakpointObserver.observe.and.returnValue(of({ matches: false }));
+    setupWithPermissions({});
+    expect(component.sidenavUserOpened()).toBe(true);
+    component.toggleSidenav();
+    expect(component.sidenavUserOpened()).toBe(false);
+    component.toggleSidenav();
+    expect(component.sidenavUserOpened()).toBe(true);
   });
 });

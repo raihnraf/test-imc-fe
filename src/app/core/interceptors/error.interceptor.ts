@@ -10,12 +10,14 @@ import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+import { PermissionService } from '../services/permission.service';
 
 export const errorInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
+  const permissionService = inject(PermissionService);
   const router = inject(Router);
 
   return next(req).pipe(
@@ -30,6 +32,7 @@ export const errorInterceptor: HttpInterceptorFn = (
       }
 
       return authService.refreshToken().pipe(
+        switchMap(() => permissionService.refreshPermissions()),
         switchMap(() => {
           const token = authService.accessToken();
           const retryReq = req.clone({

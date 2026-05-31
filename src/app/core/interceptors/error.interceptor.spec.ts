@@ -29,6 +29,12 @@ const mockRefreshRes: RefreshResponse = {
   },
 };
 
+const mockPermissionMatrix = {
+  data: [
+    { route_path: '/users', has_access: true },
+  ],
+};
+
 describe('Interceptors', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
@@ -110,6 +116,9 @@ describe('Interceptors', () => {
     const refreshReq = httpMock.expectOne('/auth/refresh');
     expect(refreshReq.request.body).toEqual({ refresh_token: 'valid-refresh' });
     refreshReq.flush(mockRefreshRes);
+
+    const permReq = httpMock.expectOne('/api/permissions/matrix?user_id=1');
+    permReq.flush(mockPermissionMatrix);
 
     const req2 = httpMock.expectOne('/api/protected');
     expect(req2.request.headers.get('Authorization')).toBe('Bearer refreshed-token');
