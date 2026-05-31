@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.angular/
+.planning/
+.commandcode/
+AGENTS.md
+original.md
+plan.md
+README-BE-REPO.md
+.claude/
+.cursor/
+.codex/
+.aider/
+.copilot/
+*_ai_generated*
+.ai_*
