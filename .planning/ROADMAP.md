@@ -30,7 +30,12 @@
   3. When access token expires, the next API call automatically refreshes it without user intervention
   4. User can log out from any page, and all session data is cleared (redirected to login)
   5. Unauthenticated user attempting to access any protected route is redirected to the login page
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 01-auth-foundation-01-PLAN.md — Scaffold Angular 20 + Material, create API models, implement signal-based AuthService with login/logout/refresh/session-restore
+- [ ] 01-auth-foundation-02-PLAN.md — Implement auth interceptor (Bearer token), error interceptor (401 refresh queue), auth guard, permission service
+- [ ] 01-auth-foundation-03-PLAN.md — Build login UI with Reactive Forms + Material, wire app routes with guards, register interceptors, session restoration via APP_INITIALIZER
 
 ### Phase 2: Admin Layout + User CRUD
 **Goal:** Admin can manage users through a complete CRUD interface within an admin shell
@@ -88,7 +93,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth Foundation | 0/0 | Not started | - |
+| 1. Auth Foundation | 3/3 | Planned | - |
 | 2. Admin Layout + User CRUD | 0/0 | Not started | - |
 | 3. Level + Page CRUD | 0/0 | Not started | - |
 | 4. Permissions + Dynamic Menu | 0/0 | Not started | - |
