@@ -99,7 +99,11 @@ Plans:
   1. Admin layout (sidenav, toolbar, content area) adapts cleanly to tablet-width screens without horizontal scrolling
   2. CRUD tables and forms remain usable and readable on tablet screen sizes
   3. Sidebar collapses/expands appropriately on smaller screens
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Admin layout responsive: BreakpointObserver-driven sidenav mode switching, hamburger toggle, tablet content padding
+- [ ] 05-02-PLAN.md — Tables + forms responsive: computed displayedColumns for column hiding, extended form media queries, table overflow wrappers
 **UI hint**: yes
 
 ---
