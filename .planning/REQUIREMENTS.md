@@ -98,12 +98,18 @@
 | AUTH-04 | Phase 1 | Pending |
 | AUTH-05 | Phase 1 | Pending |
 | AUTH-06 | Phase 1 | Pending |
+| NAV-04 | Phase 1 | Pending |
 | USER-01 | Phase 2 | Pending |
 | USER-02 | Phase 2 | Pending |
 | USER-03 | Phase 2 | Pending |
 | USER-04 | Phase 2 | Pending |
 | USER-05 | Phase 2 | Pending |
 | USER-06 | Phase 2 | Pending |
+| UI-01 | Phase 2 | Pending |
+| UI-02 | Phase 2 | Pending |
+| UI-03 | Phase 2 | Pending |
+| UI-04 | Phase 2 | Pending |
+| UI-05 | Phase 2 | Pending |
 | LEVEL-01 | Phase 3 | Pending |
 | LEVEL-02 | Phase 3 | Pending |
 | LEVEL-03 | Phase 3 | Pending |
@@ -121,12 +127,6 @@
 | NAV-01 | Phase 4 | Pending |
 | NAV-02 | Phase 4 | Pending |
 | NAV-03 | Phase 4 | Pending |
-| NAV-04 | Phase 1 | Pending |
-| UI-01 | Phase 2 | Pending |
-| UI-02 | Phase 2 | Pending |
-| UI-03 | Phase 2 | Pending |
-| UI-04 | Phase 2 | Pending |
-| UI-05 | Phase 2 | Pending |
 | UI-06 | Phase 5 | Pending |
 
 **Coverage:**
