@@ -13,7 +13,7 @@
 - [ ] **Phase 1: Auth Foundation** — Users can log in, tokens auto-refresh, and unauthenticated access is blocked
 - [ ] **Phase 2: Admin Layout + User CRUD** — Admin shell with sidenav, full user management (list/create/edit/delete), and shared UI patterns
 - [x] **Phase 3: Level + Page CRUD** — Admin can manage levels (with soft-delete) and pages/menus
-- [ ] **Phase 4: Permissions + Dynamic Menu** — Permission matrix UI for levels, user-level overrides, and dynamic sidebar filtered by permissions
+- [x] **Phase 4: Permissions + Dynamic Menu** — Permission matrix UI for levels, user-level overrides, and dynamic sidebar filtered by permissions
 - [ ] **Phase 5: Polish + Responsive** — Responsive layout works on desktop and tablet, all edge cases handled
 
 ---
@@ -86,9 +86,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Permission models, extended PermissionService (6 methods), permissionGuard, APP_INITIALIZER permission loading
-- [ ] 04-02-PLAN.md — LevelPermissionMatrixComponent (checkbox grid), UserPermissionOverrideComponent (tabbed UI), routes, level list permissions button
-- [ ] 04-03-PLAN.md — Dynamic sidenav filtering, ForbiddenComponent (403 page), permissionGuard on routes, error interceptor 403 handling
+- [x] 04-01-PLAN.md — Permission models, extended PermissionService (6 methods), permissionGuard, APP_INITIALIZER permission loading
+- [x] 04-02-PLAN.md — LevelPermissionMatrixComponent (checkbox grid), UserPermissionOverrideComponent (tabbed UI), routes, level list permissions button
+- [x] 04-03-PLAN.md — Dynamic sidenav filtering, ForbiddenComponent (403 page), permissionGuard on routes, error interceptor 403 handling
 **UI hint**: yes
 
 ### Phase 5: Polish + Responsive
@@ -111,7 +111,7 @@ Plans:
 | 1. Auth Foundation | 3/3 | Planned | - |
 | 2. Admin Layout + User CRUD | 3/3 | Planned | - |
 | 3. Level + Page CRUD | 3/3 | Complete | - |
-| 4. Permissions + Dynamic Menu | 3/3 | Planned | - |
+| 4. Permissions + Dynamic Menu | 3/3 | Complete | - |
 | 5. Polish + Responsive | 0/0 | Not started | - |
 
 ---
