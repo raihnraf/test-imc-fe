@@ -1,0 +1,40 @@
+<mat-sidenav-container class="layout-container">
+  <mat-sidenav #sidenav [mode]="'side'" [opened]="sidenavOpen()" class="layout-sidenav">
+    <mat-nav-list>
+      @for (item of navItems; track item.route) {
+        @if (permissionService.permissions()[item.permission] === true) {
+          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="layout-toolbar">
+      <span class="toolbar-title">IMC Admin</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+        {{ displayName() }}
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item disabled>
+          <mat-icon>person</mat-icon>
+          <span>{{ displayName() }}</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="handleLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main class="layout-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,38 @@
+.forbidden-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+.forbidden-card {
+  max-width: 480px;
+  width: 100%;
+  margin: 16px;
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.forbidden-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+p {
+  margin: 0 0 24px;
+  color: #666;
+  font-size: 1rem;
+}
+
+button {
+  margin-top: 16px;
+}

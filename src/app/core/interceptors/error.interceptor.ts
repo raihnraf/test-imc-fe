@@ -20,6 +20,11 @@ export const errorInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      if (error.status === 403 && req.method === 'GET') {
+        router.navigate(['/forbidden']);
+        return throwError(() => error);
+      }
+
       if (error.status !== 401) {
         return throwError(() => error);
       }

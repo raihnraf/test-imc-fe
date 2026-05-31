@@ -10,7 +10,15 @@ export const appRoutes: Routes = [
   {
     path: 'admin',
     canActivate: [authGuard],
-    children: [],
+    loadChildren: () =>
+      import('./layout/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
+    path: 'forbidden',
+    loadComponent: () =>
+      import('./shared/pages/forbidden/forbidden.component').then(
+        (m) => m.ForbiddenComponent,
+      ),
   },
   { path: '**', redirectTo: '' },
 ];

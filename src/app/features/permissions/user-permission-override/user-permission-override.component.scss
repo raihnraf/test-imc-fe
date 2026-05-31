@@ -1,0 +1,82 @@
+.override-card {
+  margin: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 0;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.override-table {
+  width: 100%;
+}
+
+.mat-column-route_path {
+  max-width: 200px;
+}
+
+.mat-column-has_access {
+  width: 100px;
+  text-align: center;
+}
+
+.mat-column-has_access .mat-checkbox {
+  display: flex;
+  justify-content: center;
+}
+
+.mat-column-actions {
+  width: 80px;
+  text-align: right;
+}
+
+.no-overrides {
+  text-align: center;
+  color: #666;
+  padding: 24px 0;
+  font-style: italic;
+}
+
+.add-override-section {
+  margin-top: 24px;
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.add-override-section h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.add-override-form {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.page-select {
+  flex: 1;
+}
+
+.access-select {
+  width: 140px;
+}
+
+.add-button {
+  margin-top: 8px;
+}

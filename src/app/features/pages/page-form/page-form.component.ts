@@ -1,0 +1,185 @@
+import {
+  Component,
+  computed,
+  signal,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { PageService } from '../../../shared/services/page.service';
+import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import type { PageForm } from '../../../shared/models/page.model';
+import type { ApiErrorResponse } from '../../../shared/models/auth.model';
+
+@Component({
+  selector: 'app-page-form',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    RouterLink,
+  ],
+  templateUrl: './page-form.component.html',
+  styleUrls: ['./page-form.component.scss'],
+})
+export class PageFormComponent implements OnInit {
+  private readonly pageService = inject(PageService);
+  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly fb = inject(FormBuilder);
+
+  private readonly pageId = signal<number | null>(null);
+  readonly isEditMode = computed(() => this.pageId() !== null);
+  readonly pageTitle = computed(() => (this.isEditMode() ? 'Edit Page' : 'Create Page'));
+  readonly isLoading = signal(false);
+  readonly isSubmitting = signal(false);
+  readonly serverErrors = signal<Record<string, string[]>>({});
+
+  readonly form: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(100)]],
+    route_path: ['', [Validators.required, Validators.maxLength(255), Validators.pattern(/^\/\S*$/)]],
+    description: [''],
+    display_order: [0, [Validators.min(0)]],
+    is_active: [true],
+  });
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.pageId.set(Number(id));
+      this.loadPage(Number(id));
+    }
+  }
+
+  private loadPage(id: number): void {
+    this.isLoading.set(true);
+    this.pageService.getById(id).subscribe({
+      next: (page) => {
+        this.form.patchValue({
+          name: page.name,
+          route_path: page.route_path,
+          description: page.description,
+          display_order: page.display_order,
+          is_active: page.is_active,
+        });
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorHandler.handle(err);
+        this.router.navigate(['/admin/pages']);
+      },
+    });
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.serverErrors.set({});
+
+    const rawValue = this.form.getRawValue() as PageForm;
+    const payload = {
+      name: rawValue.name,
+      route_path: rawValue.route_path,
+      description: rawValue.description || null,
+      display_order: Number(rawValue.display_order),
+      is_active: rawValue.is_active,
+    };
+
+    const request$ = this.isEditMode()
+      ? this.pageService.update(this.pageId()!, payload)
+      : this.pageService.create(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.snackBar.open(
+          this.isEditMode() ? 'Page updated successfully' : 'Page created successfully',
+          'Close',
+          { duration: 3000 },
+        );
+        this.router.navigate(['/admin/pages']);
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        this.handleSubmitError(err);
+      },
+    });
+  }
+
+  private handleSubmitError(err: unknown): void {
+    if (err instanceof HttpErrorResponse) {
+      const apiError = err?.error as ApiErrorResponse | undefined;
+
+      if ((err.status === 422 || err.status === 409) && apiError?.error) {
+        if (apiError.error.errors) {
+          const formErrors = this.errorHandler.handleFormErrors(err);
+          for (const [field, messages] of Object.entries(formErrors)) {
+            const control = this.form.get(field);
+            if (control) {
+              control.setErrors({ server: messages });
+            }
+          }
+          this.serverErrors.set(formErrors);
+        }
+
+        if (apiError.error.field && apiError.error.description) {
+          const control = this.form.get(apiError.error.field);
+          if (control) {
+            control.setErrors({ server: [apiError.error.description] });
+            this.serverErrors.set({
+              [apiError.error.field]: [apiError.error.description],
+            });
+          }
+        }
+      } else {
+        this.errorHandler.handle(err);
+      }
+    } else {
+      this.errorHandler.handle(err);
+    }
+  }
+
+  get nameControl() {
+    return this.form.get('name');
+  }
+  get routePathControl() {
+    return this.form.get('route_path');
+  }
+  get descriptionControl() {
+    return this.form.get('description');
+  }
+  get displayOrderControl() {
+    return this.form.get('display_order');
+  }
+}

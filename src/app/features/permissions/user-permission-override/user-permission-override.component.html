@@ -1,0 +1,117 @@
+<mat-card class="override-card">
+  <div class="card-header">
+    <h2>User Permissions</h2>
+    <a mat-icon-button routerLink="/admin/users" matTooltip="Back to Users">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+  </div>
+
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    }
+
+    <mat-tab-group [(selectedIndex)]="activeTab">
+      <mat-tab label="Effective Permissions">
+        <table mat-table [dataSource]="effectivePermissions()" class="override-table">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Page Name</th>
+            <td mat-cell *matCellDef="let entry">{{ entry.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="route_path">
+            <th mat-header-cell *matHeaderCellDef>Route</th>
+            <td mat-cell *matCellDef="let entry">
+              <mat-chip highlighted>{{ entry.route_path }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="has_access">
+            <th mat-header-cell *matHeaderCellDef>Access</th>
+            <td mat-cell *matCellDef="let entry">
+              <mat-checkbox [checked]="entry.has_access" disabled></mat-checkbox>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="effectiveColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: effectiveColumns"></tr>
+        </table>
+      </mat-tab>
+
+      <mat-tab label="Overrides">
+        <table mat-table [dataSource]="overrides()" class="override-table">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Page Name</th>
+            <td mat-cell *matCellDef="let override">{{ override.page_name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="route_path">
+            <th mat-header-cell *matHeaderCellDef>Route</th>
+            <td mat-cell *matCellDef="let override">
+              <mat-chip highlighted>{{ override.route_path }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="override_type">
+            <th mat-header-cell *matHeaderCellDef>Override</th>
+            <td mat-cell *matCellDef="let override">
+              <mat-chip [color]="override.is_granted ? 'primary' : 'warn'" highlighted>
+                {{ override.is_granted ? 'Granted' : 'Denied' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let override" class="actions-cell">
+              <button mat-icon-button color="warn" (click)="onRemoveOverride(override)" matTooltip="Remove override">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="overrideColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: overrideColumns"></tr>
+        </table>
+
+        @if (overrides().length === 0) {
+          <p class="no-overrides">No overrides configured.</p>
+        }
+
+        <div class="add-override-section">
+          <h3>Add Override</h3>
+          <div class="add-override-form">
+            <mat-form-field appearance="outline" class="page-select">
+              <mat-label>Select Page</mat-label>
+              <mat-select [(ngModel)]="selectedPageId">
+                @for (page of nonOverriddenPages(); track page.id) {
+                  <mat-option [value]="page.id">{{ page.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="access-select">
+              <mat-label>Access</mat-label>
+              <mat-select [(ngModel)]="selectedAccess">
+                <mat-option [value]="true">Grant</mat-option>
+                <mat-option [value]="false">Deny</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <button
+              mat-raised-button
+              color="primary"
+              class="add-button"
+              [disabled]="selectedPageId() === null"
+              (click)="onAddOverride()">
+              <mat-icon>add</mat-icon>
+              Add Override
+            </button>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,46 @@
+.form-card {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.user-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.slide-toggle-field {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.server-error {
+  color: #f44336;
+}
+
+@media (max-width: 600px) {
+  .user-form {
+    grid-template-columns: 1fr;
+  }
+}

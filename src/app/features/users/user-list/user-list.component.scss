@@ -1,0 +1,44 @@
+.user-list-card {
+  margin: 0;
+}
+
+.list-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-field {
+  width: 160px;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.user-table {
+  width: 100%;
+}
+
+.inactive-row {
+  opacity: 0.6;
+  background-color: #fafafa;
+}
+
+.actions-cell {
+  white-space: nowrap;
+  text-align: right;
+}

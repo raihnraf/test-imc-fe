@@ -12,7 +12,7 @@
 
 - [ ] **Phase 1: Auth Foundation** — Users can log in, tokens auto-refresh, and unauthenticated access is blocked
 - [ ] **Phase 2: Admin Layout + User CRUD** — Admin shell with sidenav, full user management (list/create/edit/delete), and shared UI patterns
-- [ ] **Phase 3: Level + Page CRUD** — Admin can manage levels (with soft-delete) and pages/menus
+- [x] **Phase 3: Level + Page CRUD** — Admin can manage levels (with soft-delete) and pages/menus
 - [ ] **Phase 4: Permissions + Dynamic Menu** — Permission matrix UI for levels, user-level overrides, and dynamic sidebar filtered by permissions
 - [ ] **Phase 5: Polish + Responsive** — Responsive layout works on desktop and tablet, all edge cases handled
 
@@ -47,7 +47,12 @@ Plans:
   3. Admin can edit an existing user (password field optional) and save changes
   4. Admin can delete a user after confirming via dialog, and user is removed from the list
   5. All async operations show loading indicators, errors display via snackbar, and forms show field-level validation with server error mapping
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Admin layout shell (sidenav, toolbar, user menu), shared services (error handler, confirm dialog, loading), user/level models
+- [ ] 02-02-PLAN.md — User list with paginated MatTable, search, level/status filters, inactive user styling
+- [ ] 02-03-PLAN.md — User create/edit form with validation, server error mapping, delete with confirmation dialog
 **UI hint**: yes
 
 ### Phase 3: Level + Page CRUD
@@ -60,7 +65,12 @@ Plans:
   3. Admin can soft-delete a level, and receives a clear error message if the level has active users
   4. Admin can view, search, and filter a paginated list of pages
   5. Admin can create, edit, and delete pages with validation (route_path uniqueness checked against backend)
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [x] 03-01-PLAN.md — Extend LevelService, create PageService + Page models
+- [x] 03-02-PLAN.md — LevelListComponent + LevelFormComponent + admin routes
+- [x] 03-03-PLAN.md — PageListComponent + PageFormComponent + admin routes
 **UI hint**: yes
 
 ### Phase 4: Permissions + Dynamic Menu
@@ -73,7 +83,12 @@ Plans:
   3. Admin can remove a user-level permission override, reverting to level defaults
   4. Sidebar menu dynamically shows only the pages the logged-in user has access to
   5. Attempting to navigate to a route without permission shows a 403 Forbidden page (not a broken page)
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Permission models, extended PermissionService (6 methods), permissionGuard, APP_INITIALIZER permission loading
+- [ ] 04-02-PLAN.md — LevelPermissionMatrixComponent (checkbox grid), UserPermissionOverrideComponent (tabbed UI), routes, level list permissions button
+- [ ] 04-03-PLAN.md — Dynamic sidenav filtering, ForbiddenComponent (403 page), permissionGuard on routes, error interceptor 403 handling
 **UI hint**: yes
 
 ### Phase 5: Polish + Responsive
@@ -94,9 +109,9 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth Foundation | 3/3 | Planned | - |
-| 2. Admin Layout + User CRUD | 0/0 | Not started | - |
-| 3. Level + Page CRUD | 0/0 | Not started | - |
-| 4. Permissions + Dynamic Menu | 0/0 | Not started | - |
+| 2. Admin Layout + User CRUD | 3/3 | Planned | - |
+| 3. Level + Page CRUD | 3/3 | Complete | - |
+| 4. Permissions + Dynamic Menu | 3/3 | Planned | - |
 | 5. Polish + Responsive | 0/0 | Not started | - |
 
 ---

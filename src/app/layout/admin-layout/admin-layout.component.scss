@@ -1,0 +1,28 @@
+.layout-container {
+  height: 100vh;
+}
+
+.layout-sidenav {
+  width: 250px;
+  border-right: none;
+}
+
+.layout-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.layout-content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.active-link {
+  background-color: rgba(0, 0, 0, 0.04);
+}
