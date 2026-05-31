@@ -574,22 +574,22 @@ export const appConfig: ApplicationConfig = {
 | A3 | Permission format for NAV-04 will be based on page route paths (e.g., `/users`, `/levels`) | NAV-04 research | Medium — backend permission matrix returns page data with `route_path` field. Permission service should map these to route guard checks. Exact format needs confirmation during execution. |
 | A4 | The Postman collection's `jsonData.data.token` reference is a bug — actual response uses `access_token` | API Contract | Low — verified from LoginAction.php source code. Response uses `access_token`. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the app auto-restore session on page refresh using the refresh token?**
    - What we know: Refresh token stored in sessionStorage (survives page refresh). Backend supports `POST /auth/refresh`.
    - What's unclear: Should the plan include an `APP_INITIALIZER` that checks for a stored refresh token and auto-refreshes on app load?
-   - Recommendation: Yes — include session restoration in Phase 1. It's a small addition (check sessionStorage on init, call refresh if token exists) and significantly improves UX. Without it, every page refresh logs the user out.
+   - RESOLVED: Yes — include session restoration in Phase 1. It's a small addition (check sessionStorage on init, call refresh if token exists) and significantly improves UX. Without it, every page refresh logs the user out. Implemented via APP_INITIALIZER in Plan 01-03 Task 2.
 
 2. **What should the default redirect be after successful login?**
    - What we know: Phase 2 will create an admin dashboard. Phase 4 will create dynamic sidebar.
    - What's unclear: Where should the user land after login in Phase 1 (before dashboard exists)?
-   - Recommendation: Redirect to `/` which will be a placeholder or the first available feature route. The route config can be updated in Phase 2.
+   - RESOLVED: Redirect to `/` which will be a placeholder or the first available feature route. The route config can be updated in Phase 2.
 
 3. **Should the error interceptor show snackbar notifications for all errors?**
    - What we know: UI-03 (Phase 2) requires MatSnackBar for all API errors.
    - What's unclear: Should the error interceptor handle snackbar display in Phase 1, or defer to Phase 2?
-   - Recommendation: The error interceptor should handle the 401 refresh flow silently. Non-401 errors should be re-thrown and handled by the calling component (or a global error handler in Phase 2). Keep Phase 1 focused on auth mechanics.
+   - RESOLVED: The error interceptor should handle the 401 refresh flow silently. Non-401 errors should be re-thrown and handled by the calling component (or a global error handler in Phase 2). Keep Phase 1 focused on auth mechanics.
 
 ## Environment Availability
 
