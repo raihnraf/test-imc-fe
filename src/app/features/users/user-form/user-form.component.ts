@@ -28,7 +28,7 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../users/user.service';
 import { LevelService } from '../../levels/level.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
-import type { Level } from '../../../shared/models/user.model';
+import type { Level, UpdateUserRequest } from '../../../shared/models/user.model';
 
 interface UserFormControls {
   full_name: FormControl<string>;
@@ -142,34 +142,51 @@ export class UserFormComponent implements OnInit {
     this.serverErrors.set({});
 
     const rawValue = this.form.getRawValue();
-    const payload = {
-      full_name: rawValue.full_name,
-      username: rawValue.username,
-      email: rawValue.email,
-      password: rawValue.password,
-      level_id: rawValue.level_id,
-      is_active: rawValue.is_active,
-    };
 
-    const request$ = this.isEditMode()
-      ? this.userService.update(this.userId()!, payload)
-      : this.userService.create(payload);
+    if (this.isEditMode()) {
+      const payload: UpdateUserRequest = {
+        full_name: rawValue.full_name,
+        username: rawValue.username,
+        email: rawValue.email,
+        level_id: rawValue.level_id,
+        is_active: rawValue.is_active,
+      };
 
-    request$.subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.snackBar.open(
-          this.isEditMode() ? 'User updated successfully' : 'User created successfully',
-          'Close',
-          { duration: 3000 },
-        );
-        this.router.navigate(['/admin/users']);
-      },
-      error: (err) => {
-        this.isSubmitting.set(false);
-        this.errorHandler.handleFormSubmitError(err, this.form, this.serverErrors);
-      },
-    });
+      if (rawValue.password) {
+        payload.password = rawValue.password;
+      }
+
+      this.userService.update(this.userId()!, payload).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.snackBar.open('User updated successfully', 'Close', { duration: 3000 });
+          this.router.navigate(['/admin/users']);
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          this.errorHandler.handleFormSubmitError(err, this.form, this.serverErrors);
+        },
+      });
+    } else {
+      this.userService.create({
+        full_name: rawValue.full_name,
+        username: rawValue.username,
+        email: rawValue.email,
+        password: rawValue.password,
+        level_id: rawValue.level_id,
+        is_active: rawValue.is_active,
+      }).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.snackBar.open('User created successfully', 'Close', { duration: 3000 });
+          this.router.navigate(['/admin/users']);
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          this.errorHandler.handleFormSubmitError(err, this.form, this.serverErrors);
+        },
+      });
+    }
   }
 
   get fullNameControl(): FormControl<string> {

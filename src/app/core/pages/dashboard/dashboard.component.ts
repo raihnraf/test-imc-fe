@@ -4,9 +4,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
-import { PermissionService } from '../../../core/services/permission.service';
-import { PERMISSION_KEYS } from '../../../core/constants/permission-keys';
+import { AuthService } from '../../services/auth.service';
+import { PermissionService } from '../../services/permission.service';
+import { PERMISSION_KEYS } from '../../constants/permission-keys';
 
 @Component({
   selector: 'app-dashboard',

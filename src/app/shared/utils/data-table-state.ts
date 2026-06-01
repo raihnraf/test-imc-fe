@@ -1,8 +1,9 @@
-import { DestroyRef, inject, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 
+@Injectable()
 export class DataTableState {
   private readonly destroyRef = inject(DestroyRef);
 
@@ -45,7 +46,7 @@ export class DataTableState {
     this.currentPage.set(1);
   }
 
-  toListParams(extra?: Record<string, unknown>): Record<string, unknown> {
+  toListParams<T extends Record<string, unknown>>(extra?: Record<string, unknown>): T {
     const params: Record<string, unknown> = {
       page: this.currentPage(),
       perPage: this.pageSize(),
@@ -69,6 +70,6 @@ export class DataTableState {
       });
     }
 
-    return params;
+    return params as T;
   }
 }

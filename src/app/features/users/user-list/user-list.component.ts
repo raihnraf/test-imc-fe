@@ -5,6 +5,7 @@ import {
   signal,
   inject,
   OnInit,
+  effect,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -54,6 +55,7 @@ import type { Level } from '../../../shared/models/user.model';
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DataTableState],
 })
 export class UserListComponent implements OnInit {
   private readonly userService = inject(UserService);
@@ -63,6 +65,11 @@ export class UserListComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly breakpointObserver = inject(BreakpointObserver);
   readonly state = inject(DataTableState);
+
+  private readonly searchEffect = effect(() => {
+    this.state.searchQuery();
+    this.loadUsers();
+  });
 
   readonly users = signal<User[]>([]);
   readonly totalItems = signal(0);
@@ -95,7 +102,7 @@ export class UserListComponent implements OnInit {
 
     const levelId = this.levelFilter();
     this.userService
-      .list(this.state.toListParams({ levelId }) as unknown as Parameters<typeof this.userService.list>[0])
+      .list(this.state.toListParams<{ page: number; perPage: number; search?: string; isActive?: boolean; levelId?: number }>({ levelId }))
       .subscribe({
         next: (response) => {
           this.users.set(response.data);

@@ -16,7 +16,7 @@ export const appRoutes: Routes = [
   {
     path: 'forbidden',
     loadComponent: () =>
-      import('./shared/pages/forbidden/forbidden.component').then(
+      import('./core/pages/forbidden/forbidden.component').then(
         (m) => m.ForbiddenComponent,
       ),
   },

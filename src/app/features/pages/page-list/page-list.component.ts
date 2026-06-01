@@ -5,6 +5,7 @@ import {
   signal,
   inject,
   OnInit,
+  effect,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -52,6 +53,7 @@ import type { Page } from '../../../shared/models/page.model';
   templateUrl: './page-list.component.html',
   styleUrls: ['./page-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DataTableState],
 })
 export class PageListComponent implements OnInit {
   private readonly pageService = inject(PageService);
@@ -60,6 +62,11 @@ export class PageListComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly breakpointObserver = inject(BreakpointObserver);
   readonly state = inject(DataTableState);
+
+  private readonly searchEffect = effect(() => {
+    this.state.searchQuery();
+    this.loadItems();
+  });
 
   readonly items = signal<Page[]>([]);
   readonly totalItems = signal(0);
@@ -88,7 +95,7 @@ export class PageListComponent implements OnInit {
     this.state.isLoading.set(true);
 
     this.pageService
-      .list(this.state.toListParams() as unknown as Parameters<typeof this.pageService.list>[0])
+      .list(this.state.toListParams<{ page?: number; perPage?: number; search?: string; isActive?: boolean }>())
       .subscribe({
         next: (response) => {
           this.items.set(response.data);
