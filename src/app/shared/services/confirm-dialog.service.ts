@@ -28,9 +28,14 @@ export class ConfirmDialogService {
       color: options.color ?? 'warn',
     };
 
-    return this.dialog
-      .open(ConfirmDialogComponent, { data, width: '400px' })
-      .afterClosed()
-      .pipe(map((result) => result === true));
+    const dialogRef = this.dialog.open<
+      ConfirmDialogComponent,
+      ConfirmDialogData,
+      boolean
+    >(ConfirmDialogComponent, { data, width: '400px' });
+
+    return dialogRef.afterClosed().pipe(
+      map((result) => result === true),
+    );
   }
 }
