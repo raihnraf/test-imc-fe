@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
+  FormControl,
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -25,7 +26,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { LevelService } from '../../levels/level.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
-import type { LevelForm } from '../../../shared/models/user.model';
+
+interface LevelFormControls {
+  name: FormControl<string>;
+  description: FormControl<string>;
+  is_active: FormControl<boolean>;
+}
 
 @Component({
   selector: 'app-level-form',
@@ -61,10 +67,10 @@ export class LevelFormComponent implements OnInit {
   readonly isSubmitting = signal(false);
   readonly serverErrors = signal<Record<string, string[]>>({});
 
-  readonly form: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.maxLength(100)]],
-    description: [''],
-    is_active: [true],
+  readonly form: FormGroup<LevelFormControls> = this.fb.group({
+    name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
+    description: this.fb.nonNullable.control(''),
+    is_active: this.fb.nonNullable.control(true),
   });
 
   ngOnInit(): void {
@@ -81,7 +87,7 @@ export class LevelFormComponent implements OnInit {
       next: (level) => {
         this.form.patchValue({
           name: level.name,
-          description: level.description,
+          description: level.description ?? '',
           is_active: level.is_active,
         });
         this.isLoading.set(false);
@@ -103,7 +109,7 @@ export class LevelFormComponent implements OnInit {
     this.isSubmitting.set(true);
     this.serverErrors.set({});
 
-    const rawValue = this.form.getRawValue() as LevelForm;
+    const rawValue = this.form.getRawValue();
     const payload = {
       name: rawValue.name,
       description: rawValue.description || null,
@@ -131,10 +137,10 @@ export class LevelFormComponent implements OnInit {
     });
   }
 
-  get nameControl() {
-    return this.form.get('name');
+  get nameControl(): FormControl<string> {
+    return this.form.controls.name;
   }
-  get descriptionControl() {
-    return this.form.get('description');
+  get descriptionControl(): FormControl<string> {
+    return this.form.controls.description;
   }
 }

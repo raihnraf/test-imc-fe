@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
+  FormControl,
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -25,7 +26,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
-import type { PageForm } from '../../../shared/models/page.model';
+
+interface PageFormControls {
+  name: FormControl<string>;
+  route_path: FormControl<string>;
+  description: FormControl<string>;
+  display_order: FormControl<number>;
+  is_active: FormControl<boolean>;
+}
 
 @Component({
   selector: 'app-page-form',
@@ -61,12 +69,12 @@ export class PageFormComponent implements OnInit {
   readonly isSubmitting = signal(false);
   readonly serverErrors = signal<Record<string, string[]>>({});
 
-  readonly form: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.maxLength(100)]],
-    route_path: ['', [Validators.required, Validators.maxLength(255), Validators.pattern(/^\/\S*$/)]],
-    description: [''],
-    display_order: [0, [Validators.min(0)]],
-    is_active: [true],
+  readonly form: FormGroup<PageFormControls> = this.fb.group({
+    name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
+    route_path: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(255), Validators.pattern(/^\/\S*$/)]),
+    description: this.fb.nonNullable.control(''),
+    display_order: this.fb.nonNullable.control(0, [Validators.min(0)]),
+    is_active: this.fb.nonNullable.control(true),
   });
 
   ngOnInit(): void {
@@ -84,7 +92,7 @@ export class PageFormComponent implements OnInit {
         this.form.patchValue({
           name: page.name,
           route_path: page.route_path,
-          description: page.description,
+          description: page.description ?? '',
           display_order: page.display_order,
           is_active: page.is_active,
         });
@@ -107,12 +115,12 @@ export class PageFormComponent implements OnInit {
     this.isSubmitting.set(true);
     this.serverErrors.set({});
 
-    const rawValue = this.form.getRawValue() as PageForm;
+    const rawValue = this.form.getRawValue();
     const payload = {
       name: rawValue.name,
       route_path: rawValue.route_path,
       description: rawValue.description || null,
-      display_order: Number(rawValue.display_order),
+      display_order: rawValue.display_order,
       is_active: rawValue.is_active,
     };
 
@@ -137,16 +145,16 @@ export class PageFormComponent implements OnInit {
     });
   }
 
-  get nameControl() {
-    return this.form.get('name');
+  get nameControl(): FormControl<string> {
+    return this.form.controls.name;
   }
-  get routePathControl() {
-    return this.form.get('route_path');
+  get routePathControl(): FormControl<string> {
+    return this.form.controls.route_path;
   }
-  get descriptionControl() {
-    return this.form.get('description');
+  get descriptionControl(): FormControl<string> {
+    return this.form.controls.description;
   }
-  get displayOrderControl() {
-    return this.form.get('display_order');
+  get displayOrderControl(): FormControl<number> {
+    return this.form.controls.display_order;
   }
 }

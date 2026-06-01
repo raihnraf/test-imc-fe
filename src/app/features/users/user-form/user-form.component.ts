@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
+  FormControl,
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -27,8 +28,16 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../users/user.service';
 import { LevelService } from '../../levels/level.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
-import type { UserForm } from '../../../shared/models/user.model';
 import type { Level } from '../../../shared/models/user.model';
+
+interface UserFormControls {
+  full_name: FormControl<string>;
+  username: FormControl<string>;
+  email: FormControl<string>;
+  password: FormControl<string>;
+  level_id: FormControl<number | null>;
+  is_active: FormControl<boolean>;
+}
 
 @Component({
   selector: 'app-user-form',
@@ -68,21 +77,18 @@ export class UserFormComponent implements OnInit {
   readonly serverErrors = signal<Record<string, string[]>>({});
   hidePassword = true;
 
-  readonly form: FormGroup = this.fb.group({
-    full_name: ['', [Validators.required, Validators.maxLength(150)]],
-    username: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(50),
-        Validators.pattern(/^[a-zA-Z][a-zA-Z0-9_]*$/),
-      ],
-    ],
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
-    password: ['', [Validators.minLength(6)]],
-    level_id: [null as number | null],
-    is_active: [true],
+  readonly form: FormGroup<UserFormControls> = this.fb.group({
+    full_name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(150)]),
+    username: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(50),
+      Validators.pattern(/^[a-zA-Z][a-zA-Z0-9_]*$/),
+    ]),
+    email: this.fb.nonNullable.control('', [Validators.required, Validators.email, Validators.maxLength(100)]),
+    password: this.fb.nonNullable.control('', [Validators.minLength(6)]),
+    level_id: this.fb.nonNullable.control<number | null>(null),
+    is_active: this.fb.nonNullable.control(true),
   });
 
   ngOnInit(): void {
@@ -93,8 +99,8 @@ export class UserFormComponent implements OnInit {
       this.loadUser(Number(id));
     }
     if (!this.isEditMode()) {
-      this.form.get('password')?.addValidators(Validators.required);
-      this.form.get('password')?.updateValueAndValidity();
+      this.form.controls.password.addValidators(Validators.required);
+      this.form.controls.password.updateValueAndValidity();
     }
   }
 
@@ -135,7 +141,7 @@ export class UserFormComponent implements OnInit {
     this.isSubmitting.set(true);
     this.serverErrors.set({});
 
-    const rawValue = this.form.getRawValue() as UserForm;
+    const rawValue = this.form.getRawValue();
     const payload = {
       full_name: rawValue.full_name,
       username: rawValue.username,
@@ -166,16 +172,16 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  get fullNameControl() {
-    return this.form.get('full_name');
+  get fullNameControl(): FormControl<string> {
+    return this.form.controls.full_name;
   }
-  get usernameControl() {
-    return this.form.get('username');
+  get usernameControl(): FormControl<string> {
+    return this.form.controls.username;
   }
-  get emailControl() {
-    return this.form.get('email');
+  get emailControl(): FormControl<string> {
+    return this.form.controls.email;
   }
-  get passwordControl() {
-    return this.form.get('password');
+  get passwordControl(): FormControl<string> {
+    return this.form.controls.password;
   }
 }
