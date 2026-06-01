@@ -148,7 +148,10 @@ src/app/
 │   ├── guards/                  auth.guard.ts, permission.guard.ts
 │   ├── interceptors/            auth.interceptor.ts, error.interceptor.ts
 │   ├── services/                auth.service.ts, permission.service.ts
-│   └── constants/               permission-keys.ts (PermissionKey constants)
+│   ├── constants/               permission-keys.ts (PermissionKey constants)
+│   └── pages/
+│       ├── dashboard/           Landing page setelah login
+│       └── forbidden/           Halaman 403
 ├── features/
 │   ├── auth/login/              Login page (Reactive Forms + JWT)
 │   ├── users/
@@ -171,12 +174,9 @@ src/app/
 ├── shared/
 │   ├── components/              confirm-dialog, reusable shared components
 │   ├── models/                  TypeScript interfaces (User, Level, Page, Permission, AuthUser)
-│   ├── pages/
-│   │   ├── dashboard/           Landing page setelah login
-│   │   └── forbidden/           Halaman 403
 │   ├── services/                ErrorHandlerService, ConfirmDialogService, LoadingService
 │   ├── styles/                  _form-page.scss mixin, CSS variables
-│   └── utils/                   DataTableState composable
+│   └── utils/                   DataTableState composable (@Injectable, per-component scope)
 ├── app.config.ts                Provider: router, HTTP interceptors, APP_INITIALIZER
 ├── app.routes.ts                Top-level route definitions + auth guard
 └── app.ts                       Root component (OnPush)
