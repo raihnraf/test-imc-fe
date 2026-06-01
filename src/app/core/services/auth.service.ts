@@ -7,7 +7,7 @@ import type {
   LoginCredentials,
   LoginResponse,
   RefreshResponse,
-  User,
+  AuthUser,
 } from '../../shared/models/auth.model';
 
 @Injectable({ providedIn: 'root' })
@@ -15,7 +15,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  private readonly _user = signal<User | null>(null);
+  private readonly _user = signal<AuthUser | null>(null);
   private readonly _accessToken = signal<string | null>(null);
 
   readonly user = this._user.asReadonly();
@@ -23,6 +23,7 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this._accessToken() !== null);
 
   private _refreshCall$: Observable<RefreshResponse> | null = null;
+  private _isRefreshing = false;
 
   login(credentials: LoginCredentials): Observable<LoginResponse> {
     return this.http
@@ -54,7 +55,8 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    if (!this._refreshCall$) {
+    if (!this._isRefreshing) {
+      this._isRefreshing = true;
       this._refreshCall$ = this.http
         .post<RefreshResponse>('/auth/refresh', { refresh_token: storedRefreshToken })
         .pipe(
@@ -63,13 +65,14 @@ export class AuthService {
             sessionStorage.setItem('refresh_token', res.data.refresh_token);
           }),
           finalize(() => {
+            this._isRefreshing = false;
             this._refreshCall$ = null;
           }),
           shareReplay(1),
         );
     }
 
-    return this._refreshCall$;
+    return this._refreshCall$!;
   }
 
   restoreSession(): Observable<boolean> {
