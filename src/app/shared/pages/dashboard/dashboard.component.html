@@ -5,7 +5,7 @@
   </div>
 
   <div class="dashboard-grid">
-    @if (permissionService.permissions()['/users'] === true) {
+    @if (permissionService.permissions()[PERMISSION_KEYS.USERS] === true) {
       <mat-card class="dashboard-card" [routerLink]="['/admin/users']">
         <mat-card-content class="card-content">
           <mat-icon class="card-icon">people</mat-icon>
@@ -17,7 +17,7 @@
       </mat-card>
     }
 
-    @if (permissionService.permissions()['/levels'] === true) {
+    @if (permissionService.permissions()[PERMISSION_KEYS.LEVELS] === true) {
       <mat-card class="dashboard-card" [routerLink]="['/admin/levels']">
         <mat-card-content class="card-content">
           <mat-icon class="card-icon">layers</mat-icon>
@@ -29,7 +29,7 @@
       </mat-card>
     }
 
-    @if (permissionService.permissions()['/pages'] === true) {
+    @if (permissionService.permissions()[PERMISSION_KEYS.PAGES] === true) {
       <mat-card class="dashboard-card" [routerLink]="['/admin/pages']">
         <mat-card-content class="card-content">
           <mat-icon class="card-icon">description</mat-icon>
@@ -43,9 +43,9 @@
   </div>
 
   @if (
-    permissionService.permissions()['/users'] !== true &&
-    permissionService.permissions()['/levels'] !== true &&
-    permissionService.permissions()['/pages'] !== true
+    permissionService.permissions()[PERMISSION_KEYS.USERS] !== true &&
+    permissionService.permissions()[PERMISSION_KEYS.LEVELS] !== true &&
+    permissionService.permissions()[PERMISSION_KEYS.PAGES] !== true
   ) {
     <mat-card class="dashboard-empty">
       <mat-card-content>

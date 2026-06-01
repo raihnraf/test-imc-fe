@@ -6,7 +6,8 @@ import { signal } from '@angular/core';
 import { permissionGuard } from './permission.guard';
 import { PermissionService } from '../services/permission.service';
 import { AuthService } from '../services/auth.service';
-import type { User } from '../../shared/models/auth.model';
+import { PERMISSION_KEYS } from '../constants/permission-keys';
+import type { AuthUser } from '../../shared/models/auth.model';
 
 function createRouteSnapshot(data?: Record<string, unknown>): ActivatedRouteSnapshot {
   return { data: data ?? {} } as ActivatedRouteSnapshot;
@@ -19,7 +20,7 @@ function createRouterState(): RouterStateSnapshot {
 describe('permissionGuard', () => {
   let permissionService: PermissionService;
 
-  const mockUser: User = {
+  const mockUser: AuthUser = {
     id: 1,
     username: 'admin',
     full_name: 'Admin User',
@@ -50,11 +51,11 @@ describe('permissionGuard', () => {
   });
 
   it('should return true when permissions[requiredPermission] === true', () => {
-    permissionService['_permissions'].set({ '/users': true });
+    permissionService['_permissions'].set({ [PERMISSION_KEYS.USERS]: true });
 
     const result = TestBed.runInInjectionContext(() =>
       permissionGuard(
-        createRouteSnapshot({ permission: '/users' }),
+        createRouteSnapshot({ permission: PERMISSION_KEYS.USERS }),
         createRouterState(),
       ),
     );
@@ -62,11 +63,11 @@ describe('permissionGuard', () => {
   });
 
   it('should return UrlTree to /forbidden when permissions[requiredPermission] !== true', () => {
-    permissionService['_permissions'].set({ '/users': false });
+    permissionService['_permissions'].set({ [PERMISSION_KEYS.USERS]: false });
 
     const result = TestBed.runInInjectionContext(() =>
       permissionGuard(
-        createRouteSnapshot({ permission: '/users' }),
+        createRouteSnapshot({ permission: PERMISSION_KEYS.USERS }),
         createRouterState(),
       ),
     );
@@ -77,7 +78,7 @@ describe('permissionGuard', () => {
   it('should return UrlTree to /forbidden when permissions record is empty', () => {
     const result = TestBed.runInInjectionContext(() =>
       permissionGuard(
-        createRouteSnapshot({ permission: '/users' }),
+        createRouteSnapshot({ permission: PERMISSION_KEYS.USERS }),
         createRouterState(),
       ),
     );
@@ -87,13 +88,13 @@ describe('permissionGuard', () => {
 
   it('should return true when requiredPermission is present and true in permissions', () => {
     permissionService['_permissions'].set({
-      '/users': true,
-      '/levels': false,
+      [PERMISSION_KEYS.USERS]: true,
+      [PERMISSION_KEYS.LEVELS]: false,
     });
 
     const result = TestBed.runInInjectionContext(() =>
       permissionGuard(
-        createRouteSnapshot({ permission: '/users' }),
+        createRouteSnapshot({ permission: PERMISSION_KEYS.USERS }),
         createRouterState(),
       ),
     );

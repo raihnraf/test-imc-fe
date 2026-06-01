@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -7,5 +7,6 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
   template: '<router-outlet />',
   styles: [':host { display: block; height: 100%; }'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {}

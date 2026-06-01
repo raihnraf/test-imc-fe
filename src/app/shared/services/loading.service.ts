@@ -1,4 +1,4 @@
-import { Component, computed, signal, Injectable, inject } from '@angular/core';
+import { computed, signal, Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class LoadingService {
@@ -10,7 +10,7 @@ export class LoadingService {
     return computed(() => this._loadingKeys().has(key));
   }
 
-  show(key: string = 'global'): void {
+  show(key = 'global'): void {
     this._loadingKeys.update((keys) => {
       const next = new Set(keys);
       next.add(key);
@@ -18,7 +18,7 @@ export class LoadingService {
     });
   }
 
-  hide(key: string = 'global'): void {
+  hide(key = 'global'): void {
     this._loadingKeys.update((keys) => {
       const next = new Set(keys);
       next.delete(key);

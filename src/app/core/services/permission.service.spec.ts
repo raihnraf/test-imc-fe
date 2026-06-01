@@ -7,14 +7,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { PermissionService } from './permission.service';
 import { AuthService } from './auth.service';
-import type { User } from '../../shared/models/auth.model';
+import type { AuthUser } from '../../shared/models/auth.model';
 
 describe('PermissionService', () => {
   let service: PermissionService;
   let httpMock: HttpTestingController;
   let authService: jasmine.SpyObj<AuthService>;
 
-  const mockUser: User = {
+  const mockUser: AuthUser = {
     id: 42,
     username: 'admin',
     full_name: 'Admin User',

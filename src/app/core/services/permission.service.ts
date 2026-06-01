@@ -16,6 +16,10 @@ export class PermissionService {
 
   readonly permissions = this._permissions.asReadonly();
 
+  hasPermission(key: string): boolean {
+    return !!this._permissions()[key];
+  }
+
   loadPermissions(userId: number): Observable<void> {
     return this.http
       .get<{

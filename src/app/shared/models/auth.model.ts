@@ -1,4 +1,4 @@
-export interface User {
+export interface AuthUser {
   id: number;
   username: string;
   full_name: string;
@@ -11,7 +11,7 @@ export interface LoginResponse {
     refresh_token: string;
     token_type: 'Bearer';
     expires_in: number;
-    user: User;
+    user: AuthUser;
   };
 }
 
@@ -25,8 +25,8 @@ export interface RefreshResponse {
 }
 
 export interface LoginCredentials {
-  username: string | undefined;
-  email: string | undefined;
+  username: string;
+  email: string;
   password: string;
 }
 

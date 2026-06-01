@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
@@ -27,6 +27,7 @@ import type { ApiErrorResponse } from '../../../shared/models/auth.model';
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);

@@ -13,7 +13,7 @@ import { of } from 'rxjs';
 import { UserPermissionOverrideComponent } from './user-permission-override.component';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { AuthService } from '../../../core/services/auth.service';
-import type { User } from '../../../shared/models/auth.model';
+import type { AuthUser } from '../../../shared/models/auth.model';
 import type { Page } from '../../../shared/models/page.model';
 
 describe('UserPermissionOverrideComponent', () => {
@@ -23,7 +23,7 @@ describe('UserPermissionOverrideComponent', () => {
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
   let snackBar: jasmine.SpyObj<MatSnackBar>;
 
-  const mockUser: User = {
+  const mockUser: AuthUser = {
     id: 1,
     username: 'admin',
     full_name: 'Admin User',

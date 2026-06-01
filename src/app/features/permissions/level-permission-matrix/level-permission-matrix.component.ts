@@ -24,10 +24,6 @@ import { PermissionService } from '../../../core/services/permission.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import type { PermissionEntry } from '../../../shared/models/permission.model';
 
-interface PendingChange {
-  entryId: number;
-  checked: boolean;
-}
 
 @Component({
   selector: 'app-level-permission-matrix',

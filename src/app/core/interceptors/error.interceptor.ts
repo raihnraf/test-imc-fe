@@ -6,10 +6,12 @@ import {
   HttpHandlerFn,
   HttpEvent,
 } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { EMPTY, Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { PermissionService } from '../services/permission.service';
+
+const RETRY_HEADER = 'X-Retry-After-Refresh';
 
 export const errorInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -24,18 +26,26 @@ export const errorInterceptor: HttpInterceptorFn = (
         return throwError(() => error);
       }
 
+      if (req.headers.has(RETRY_HEADER) || req.url === '/auth/refresh') {
+        authService.logout().subscribe();
+        return EMPTY;
+      }
+
       return authService.refreshToken().pipe(
         switchMap(() => permissionService.refreshPermissions()),
         switchMap(() => {
           const token = authService.accessToken();
           const retryReq = req.clone({
-            setHeaders: { Authorization: `Bearer ${token}` },
+            setHeaders: {
+              Authorization: `Bearer ${token}`,
+              [RETRY_HEADER]: 'true',
+            },
           });
           return next(retryReq);
         }),
         catchError(() => {
           authService.logout().subscribe();
-          return throwError(() => error);
+          return EMPTY;
         }),
       );
     }),

@@ -48,7 +48,7 @@
   </div>
 
   <mat-card class="table-card">
-    @if (isLoading()) {
+    @if (state.isLoading()) {
       <div class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
       </div>
@@ -127,8 +127,8 @@
 
     <mat-paginator
       [length]="totalItems()"
-      [pageSize]="pageSize()"
-      [pageIndex]="currentPage() - 1"
+      [pageSize]="state.pageSize()"
+      [pageIndex]="state.currentPage() - 1"
       [pageSizeOptions]="[5, 10, 15, 25]"
       (page)="onPageChange($event)"
       showFirstLastButtons
