@@ -1,15 +1,15 @@
 import {
   Component,
+  ChangeDetectionStrategy,
   computed,
   signal,
   inject,
   OnInit,
-  OnDestroy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
+import { map, startWith } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,11 +23,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../../shared/services/user.service';
-import { LevelService } from '../../../shared/services/level.service';
+import { UserService } from '../../users/user.service';
+import { LevelService } from '../../levels/level.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DataTableState } from '../../../shared/utils/data-table-state';
 import type { User } from '../../../shared/models/user.model';
 import type { Level } from '../../../shared/models/user.model';
 
@@ -52,24 +53,21 @@ import type { Level } from '../../../shared/models/user.model';
   ],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserListComponent implements OnInit, OnDestroy {
+export class UserListComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly levelService = inject(LevelService);
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  readonly state = inject(DataTableState);
 
   readonly users = signal<User[]>([]);
   readonly totalItems = signal(0);
-  readonly currentPage = signal(1);
-  readonly pageSize = signal(15);
-  readonly isLoading = signal(false);
   readonly levels = signal<Level[]>([]);
   readonly levelFilter = signal<number | null>(null);
-  readonly statusFilter = signal<boolean | null>(null);
-  private searchQuery = signal('');
 
   readonly isTablet = toSignal(
     this.breakpointObserver
@@ -87,48 +85,26 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.isTablet() ? this.tabletColumns : this.desktopColumns,
   );
 
-  private searchSubject = new Subject<string>();
-  private searchSub: Subscription;
-
-  constructor() {
-    this.searchSub = this.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((query) => {
-        this.searchQuery.set(query);
-        this.currentPage.set(1);
-        this.loadUsers();
-      });
-  }
-
   ngOnInit(): void {
     this.loadLevels();
     this.loadUsers();
   }
 
-  ngOnDestroy(): void {
-    this.searchSub.unsubscribe();
-  }
-
   loadUsers(): void {
-    this.isLoading.set(true);
+    this.state.isLoading.set(true);
 
+    const levelId = this.levelFilter();
     this.userService
-      .list({
-        page: this.currentPage(),
-        perPage: this.pageSize(),
-        search: this.searchQuery() || undefined,
-        isActive: this.statusFilter() !== null ? this.statusFilter()! : undefined,
-        levelId: this.levelFilter() !== null ? this.levelFilter()! : undefined,
-      })
+      .list(this.state.toListParams({ levelId }) as unknown as Parameters<typeof this.userService.list>[0])
       .subscribe({
         next: (response) => {
           this.users.set(response.data);
           this.totalItems.set(response.total);
-          this.isLoading.set(false);
+          this.state.isLoading.set(false);
         },
         error: (err) => {
           this.errorHandler.handle(err);
-          this.isLoading.set(false);
+          this.state.isLoading.set(false);
         },
       });
   }
@@ -142,24 +118,22 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchSubject.next(input.value);
+    this.state.onSearch(input.value);
+  }
+
+  onStatusFilter(isActive: boolean | null): void {
+    this.state.onStatusFilter(isActive);
+    this.loadUsers();
   }
 
   onLevelFilter(levelId: number | null): void {
     this.levelFilter.set(levelId);
-    this.currentPage.set(1);
-    this.loadUsers();
-  }
-
-  onStatusFilter(isActive: boolean | null): void {
-    this.statusFilter.set(isActive);
-    this.currentPage.set(1);
+    this.state.resetPage();
     this.loadUsers();
   }
 
   onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex + 1);
-    this.pageSize.set(event.pageSize);
+    this.state.onPageChange(event);
     this.loadUsers();
   }
 
@@ -188,8 +162,8 @@ export class UserListComponent implements OnInit, OnDestroy {
               duration: 3000,
             });
 
-            if (this.users().length === 0 && this.currentPage() > 1) {
-              this.currentPage.update((p) => p - 1);
+            if (this.users().length === 0 && this.state.currentPage() > 1) {
+              this.state.currentPage.update((p) => p - 1);
               this.loadUsers();
             }
           },

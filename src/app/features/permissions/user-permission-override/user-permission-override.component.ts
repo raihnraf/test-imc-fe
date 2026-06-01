@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
@@ -10,17 +10,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatOptionModule } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PermissionService } from '../../../core/services/permission.service';
-import { PageService } from '../../../shared/services/page.service';
+import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import type { PermissionEntry } from '../../../shared/models/permission.model';
 import type { UserPermissionOverride } from '../../../shared/models/permission.model';
-import type { Page } from '../../../shared/models/page.model';
 
 @Component({
   selector: 'app-user-permission-override',
@@ -42,6 +40,7 @@ import type { Page } from '../../../shared/models/page.model';
   ],
   templateUrl: './user-permission-override.component.html',
   styleUrls: ['./user-permission-override.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserPermissionOverrideComponent implements OnInit {
   private readonly permissionService = inject(PermissionService);

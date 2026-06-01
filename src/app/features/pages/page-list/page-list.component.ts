@@ -1,15 +1,15 @@
 import {
   Component,
+  ChangeDetectionStrategy,
   computed,
   signal,
   inject,
   OnInit,
-  OnDestroy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
+import { map, startWith } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,10 +23,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PageService } from '../../../shared/services/page.service';
+import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DataTableState } from '../../../shared/utils/data-table-state';
 import type { Page } from '../../../shared/models/page.model';
 
 @Component({
@@ -50,21 +51,18 @@ import type { Page } from '../../../shared/models/page.model';
   ],
   templateUrl: './page-list.component.html',
   styleUrls: ['./page-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageListComponent implements OnInit, OnDestroy {
+export class PageListComponent implements OnInit {
   private readonly pageService = inject(PageService);
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  readonly state = inject(DataTableState);
 
   readonly items = signal<Page[]>([]);
   readonly totalItems = signal(0);
-  readonly currentPage = signal(1);
-  readonly pageSize = signal(15);
-  readonly isLoading = signal(false);
-  readonly statusFilter = signal<boolean | null>(null);
-  private searchQuery = signal('');
 
   readonly isTablet = toSignal(
     this.breakpointObserver
@@ -82,64 +80,40 @@ export class PageListComponent implements OnInit, OnDestroy {
     this.isTablet() ? this.tabletColumns : this.desktopColumns,
   );
 
-  private searchSubject = new Subject<string>();
-  private searchSub: Subscription;
-
-  constructor() {
-    this.searchSub = this.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((query) => {
-        this.searchQuery.set(query);
-        this.currentPage.set(1);
-        this.loadItems();
-      });
-  }
-
   ngOnInit(): void {
     this.loadItems();
   }
 
-  ngOnDestroy(): void {
-    this.searchSub.unsubscribe();
-  }
-
   loadItems(): void {
-    this.isLoading.set(true);
+    this.state.isLoading.set(true);
 
     this.pageService
-      .list({
-        page: this.currentPage(),
-        perPage: this.pageSize(),
-        search: this.searchQuery() || undefined,
-        isActive: this.statusFilter() !== null ? this.statusFilter()! : undefined,
-      })
+      .list(this.state.toListParams() as unknown as Parameters<typeof this.pageService.list>[0])
       .subscribe({
         next: (response) => {
           this.items.set(response.data);
           this.totalItems.set(response.total);
-          this.isLoading.set(false);
+          this.state.isLoading.set(false);
         },
         error: (err) => {
           this.errorHandler.handle(err);
-          this.isLoading.set(false);
+          this.state.isLoading.set(false);
         },
       });
   }
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchSubject.next(input.value);
+    this.state.onSearch(input.value);
   }
 
   onStatusFilter(isActive: boolean | null): void {
-    this.statusFilter.set(isActive);
-    this.currentPage.set(1);
+    this.state.onStatusFilter(isActive);
     this.loadItems();
   }
 
   onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex + 1);
-    this.pageSize.set(event.pageSize);
+    this.state.onPageChange(event);
     this.loadItems();
   }
 
@@ -162,8 +136,8 @@ export class PageListComponent implements OnInit, OnDestroy {
               duration: 3000,
             });
 
-            if (this.items().length === 0 && this.currentPage() > 1) {
-              this.currentPage.update((p) => p - 1);
+            if (this.items().length === 0 && this.state.currentPage() > 1) {
+              this.state.currentPage.update((p) => p - 1);
               this.loadItems();
             }
           },

@@ -1,5 +1,6 @@
 import {
   Component,
+  ChangeDetectionStrategy,
   computed,
   signal,
   inject,
@@ -22,11 +23,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { PageService } from '../../../shared/services/page.service';
+import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import type { PageForm } from '../../../shared/models/page.model';
-import type { ApiErrorResponse } from '../../../shared/models/auth.model';
 
 @Component({
   selector: 'app-page-form',
@@ -45,6 +44,7 @@ import type { ApiErrorResponse } from '../../../shared/models/auth.model';
   ],
   templateUrl: './page-form.component.html',
   styleUrls: ['./page-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageFormComponent implements OnInit {
   private readonly pageService = inject(PageService);
@@ -132,42 +132,9 @@ export class PageFormComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.handleSubmitError(err);
+        this.errorHandler.handleFormSubmitError(err, this.form, this.serverErrors);
       },
     });
-  }
-
-  private handleSubmitError(err: unknown): void {
-    if (err instanceof HttpErrorResponse) {
-      const apiError = err?.error as ApiErrorResponse | undefined;
-
-      if ((err.status === 422 || err.status === 409) && apiError?.error) {
-        if (apiError.error.errors) {
-          const formErrors = this.errorHandler.handleFormErrors(err);
-          for (const [field, messages] of Object.entries(formErrors)) {
-            const control = this.form.get(field);
-            if (control) {
-              control.setErrors({ server: messages });
-            }
-          }
-          this.serverErrors.set(formErrors);
-        }
-
-        if (apiError.error.field && apiError.error.description) {
-          const control = this.form.get(apiError.error.field);
-          if (control) {
-            control.setErrors({ server: [apiError.error.description] });
-            this.serverErrors.set({
-              [apiError.error.field]: [apiError.error.description],
-            });
-          }
-        }
-      } else {
-        this.errorHandler.handle(err);
-      }
-    } else {
-      this.errorHandler.handle(err);
-    }
   }
 
   get nameControl() {

@@ -5,8 +5,9 @@ import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { PageListComponent } from './page-list.component';
-import { PageService } from '../../../shared/services/page.service';
+import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import { DataTableState } from '../../../shared/utils/data-table-state';
 import type { Page } from '../../../shared/models/page.model';
 import type { PaginatedResponse } from '../../../shared/models/api.model';
 
@@ -25,7 +26,7 @@ describe('PageListComponent', () => {
   const emptyResponse: PaginatedResponse<Page> = { data: [], total: 0, page: 1, perPage: 15 };
   const pageResponse: PaginatedResponse<Page> = { data: mockPages, total: 2, page: 1, perPage: 15 };
 
-  async function setupComponent(breakpointMatches: boolean = false): Promise<void> {
+  async function setupComponent(breakpointMatches = false): Promise<void> {
     mockBreakpointObserver = {
       observe: jasmine.createSpy('observe').and.returnValue(of({ matches: breakpointMatches })),
     };
@@ -38,6 +39,7 @@ describe('PageListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PageListComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        DataTableState,
         { provide: PageService, useValue: pageService },
         { provide: ErrorHandlerService, useValue: errorHandler },
         { provide: BreakpointObserver, useValue: mockBreakpointObserver },
@@ -92,7 +94,7 @@ describe('PageListComponent', () => {
 
     component.onStatusFilter(false);
 
-    expect(component.statusFilter()).toBeFalse();
+    expect(component.state.statusFilter()).toBeFalse();
     expect(pageService.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ isActive: false, page: 1 }),
     );
@@ -106,8 +108,8 @@ describe('PageListComponent', () => {
 
     component.onPageChange({ pageIndex: 2, pageSize: 10, length: 0 });
 
-    expect(component.currentPage()).toBe(3);
-    expect(component.pageSize()).toBe(10);
+    expect(component.state.currentPage()).toBe(3);
+    expect(component.state.pageSize()).toBe(10);
     expect(pageService.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ page: 3, perPage: 10 }),
     );

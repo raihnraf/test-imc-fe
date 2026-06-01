@@ -7,15 +7,16 @@ import { of } from 'rxjs';
 import { AdminLayoutComponent } from './admin-layout.component';
 import { AuthService } from '../../core/services/auth.service';
 import { PermissionService } from '../../core/services/permission.service';
-import { LevelService } from '../../shared/services/level.service';
-import type { User } from '../../shared/models/auth.model';
+import { LevelService } from '../../features/levels/level.service';
+import { PERMISSION_KEYS } from '../../core/constants/permission-keys';
+import type { AuthUser } from '../../shared/models/auth.model';
 
 describe('AdminLayoutComponent', () => {
   let component: AdminLayoutComponent;
   let fixture: ComponentFixture<AdminLayoutComponent>;
   let authService: jasmine.SpyObj<AuthService>;
 
-  const mockUser: User = {
+  const mockUser: AuthUser = {
     id: 1,
     full_name: 'Admin User',
     username: 'admin',
@@ -75,17 +76,19 @@ describe('AdminLayoutComponent', () => {
 
   it('should render nav items that have permission true', () => {
     setupWithPermissions({
-      '/users': true,
-      '/levels': false,
-      '/pages': true,
+      [PERMISSION_KEYS.USERS]: true,
+      [PERMISSION_KEYS.LEVELS]: false,
+      [PERMISSION_KEYS.PAGES]: true,
     });
 
     const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
-    expect(navLinks.length).toBe(2);
+    // Dashboard always renders (permission: ''), plus Users and Pages
+    expect(navLinks.length).toBe(3);
 
     const labels = (Array.from(navLinks) as HTMLElement[]).map((el) =>
       el.querySelector('.nav-link-label')?.textContent?.trim() ?? '',
     );
+    expect(labels).toContain('Dashboard');
     expect(labels).toContain('Users');
     expect(labels).toContain('Pages');
     expect(labels).not.toContain('Levels');
@@ -93,13 +96,19 @@ describe('AdminLayoutComponent', () => {
 
   it('should hide nav items with permission false', () => {
     setupWithPermissions({
-      '/users': false,
-      '/levels': false,
-      '/pages': false,
+      [PERMISSION_KEYS.USERS]: false,
+      [PERMISSION_KEYS.LEVELS]: false,
+      [PERMISSION_KEYS.PAGES]: false,
     });
 
     const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
-    expect(navLinks.length).toBe(0);
+    // Dashboard always renders (permission: '')
+    expect(navLinks.length).toBe(1);
+    expect(
+      (Array.from(navLinks) as HTMLElement[]).map((el) =>
+        el.querySelector('.nav-link-label')?.textContent?.trim() ?? '',
+      ),
+    ).toContain('Dashboard');
   });
 
   it('should render toolbar title', () => {

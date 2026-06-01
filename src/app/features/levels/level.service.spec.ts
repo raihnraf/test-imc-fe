@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { LevelService } from './level.service';
-import type { Level, CreateLevelRequest, UpdateLevelRequest } from '../models/user.model';
+import type { Level, CreateLevelRequest, UpdateLevelRequest } from '../../shared/models/user.model';
 
 describe('LevelService', () => {
   let service: LevelService;

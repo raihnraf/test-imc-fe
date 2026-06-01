@@ -5,8 +5,9 @@ import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LevelListComponent } from './level-list.component';
-import { LevelService } from '../../../shared/services/level.service';
+import { LevelService } from '../../levels/level.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
+import { DataTableState } from '../../../shared/utils/data-table-state';
 import type { Level } from '../../../shared/models/user.model';
 import type { PaginatedResponse } from '../../../shared/models/api.model';
 
@@ -25,7 +26,7 @@ describe('LevelListComponent', () => {
   const emptyResponse: PaginatedResponse<Level> = { data: [], total: 0, page: 1, perPage: 15 };
   const pageResponse: PaginatedResponse<Level> = { data: mockLevels, total: 2, page: 1, perPage: 15 };
 
-  async function setupComponent(breakpointMatches: boolean = false): Promise<void> {
+  async function setupComponent(breakpointMatches = false): Promise<void> {
     mockBreakpointObserver = {
       observe: jasmine.createSpy('observe').and.returnValue(of({ matches: breakpointMatches })),
     };
@@ -38,6 +39,7 @@ describe('LevelListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LevelListComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        DataTableState,
         { provide: LevelService, useValue: levelService },
         { provide: ErrorHandlerService, useValue: errorHandler },
         { provide: BreakpointObserver, useValue: mockBreakpointObserver },
@@ -92,7 +94,7 @@ describe('LevelListComponent', () => {
 
     component.onStatusFilter(false);
 
-    expect(component.statusFilter()).toBeFalse();
+    expect(component.state.statusFilter()).toBeFalse();
     expect(levelService.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ isActive: false, page: 1 }),
     );
@@ -106,8 +108,8 @@ describe('LevelListComponent', () => {
 
     component.onPageChange({ pageIndex: 2, pageSize: 10, length: 0 });
 
-    expect(component.currentPage()).toBe(3);
-    expect(component.pageSize()).toBe(10);
+    expect(component.state.currentPage()).toBe(3);
+    expect(component.state.pageSize()).toBe(10);
     expect(levelService.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ page: 3, perPage: 10 }),
     );

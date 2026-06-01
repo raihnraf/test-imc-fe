@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { PageService } from './page.service';
-import type { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model';
+import type { Page, CreatePageRequest, UpdatePageRequest } from '../../shared/models/page.model';
 
 describe('PageService', () => {
   let service: PageService;

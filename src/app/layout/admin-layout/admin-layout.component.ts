@@ -1,4 +1,4 @@
-import { Component, computed, signal, effect, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, signal, effect, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -13,7 +13,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { PermissionService } from '../../core/services/permission.service';
-import { LevelService } from '../../shared/services/level.service';
+import { PERMISSION_KEYS } from '../../core/constants/permission-keys';
+import { LevelService } from '../../features/levels/level.service';
 import type { NavItem } from '../../shared/models/permission.model';
 import type { Level } from '../../shared/models/user.model';
 
@@ -34,6 +35,7 @@ import type { Level } from '../../shared/models/user.model';
   ],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
@@ -81,9 +83,9 @@ export class AdminLayoutComponent implements OnInit {
 
   readonly navItems: NavItem[] = [
     { route: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard', permission: '' },
-    { route: '/admin/users', label: 'Users', icon: 'people', permission: '/users' },
-    { route: '/admin/levels', label: 'Levels', icon: 'layers', permission: '/levels' },
-    { route: '/admin/pages', label: 'Pages', icon: 'description', permission: '/pages' },
+    { route: '/admin/users', label: 'Users', icon: 'people', permission: PERMISSION_KEYS.USERS },
+    { route: '/admin/levels', label: 'Levels', icon: 'layers', permission: PERMISSION_KEYS.LEVELS },
+    { route: '/admin/pages', label: 'Pages', icon: 'description', permission: PERMISSION_KEYS.PAGES },
   ];
 
   toggleSidenav(): void {

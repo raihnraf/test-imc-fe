@@ -2,18 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model';
-import type { PaginatedResponse } from '../models/api.model';
+import type { Level, CreateLevelRequest, UpdateLevelRequest } from '../../shared/models/user.model';
+import type { PaginatedResponse } from '../../shared/models/api.model';
 
-interface PageListParams {
+interface LevelListParams {
   page?: number;
   perPage?: number;
   search?: string;
   isActive?: boolean;
 }
 
-interface PageListBackendResponse {
-  data: Page[];
+interface LevelListBackendResponse {
+  data: Level[];
   meta: {
     page: number;
     per_page: number;
@@ -22,8 +22,8 @@ interface PageListBackendResponse {
   };
 }
 
-interface PageDetailBackendResponse {
-  data: Page;
+interface LevelDetailBackendResponse {
+  data: Level;
 }
 
 interface DeleteBackendResponse {
@@ -31,10 +31,10 @@ interface DeleteBackendResponse {
 }
 
 @Injectable({ providedIn: 'root' })
-export class PageService {
+export class LevelService {
   private readonly http = inject(HttpClient);
 
-  list(params?: PageListParams): Observable<PaginatedResponse<Page>> {
+  list(params?: LevelListParams): Observable<PaginatedResponse<Level>> {
     let httpParams = new HttpParams()
       .set('page', params?.page ?? 1)
       .set('per_page', params?.perPage ?? 100);
@@ -46,7 +46,7 @@ export class PageService {
       httpParams = httpParams.set('is_active', params.isActive ? '1' : '0');
     }
 
-    return this.http.get<PageListBackendResponse>('/api/pages', { params: httpParams }).pipe(
+    return this.http.get<LevelListBackendResponse>('/api/levels', { params: httpParams }).pipe(
       map((response) => ({
         data: response.data,
         total: response.meta.total,
@@ -56,25 +56,25 @@ export class PageService {
     );
   }
 
-  getById(id: number): Observable<Page> {
+  getById(id: number): Observable<Level> {
     return this.http
-      .get<PageDetailBackendResponse>(`/api/pages/${id}`)
+      .get<LevelDetailBackendResponse>(`/api/levels/${id}`)
       .pipe(map((response) => response.data));
   }
 
-  create(data: CreatePageRequest): Observable<Page> {
+  create(data: CreateLevelRequest): Observable<Level> {
     return this.http
-      .post<PageDetailBackendResponse>('/api/pages', data)
+      .post<LevelDetailBackendResponse>('/api/levels', data)
       .pipe(map((response) => response.data));
   }
 
-  update(id: number, data: UpdatePageRequest): Observable<Page> {
+  update(id: number, data: UpdateLevelRequest): Observable<Level> {
     return this.http
-      .put<PageDetailBackendResponse>(`/api/pages/${id}`, data)
+      .put<LevelDetailBackendResponse>(`/api/levels/${id}`, data)
       .pipe(map((response) => response.data));
   }
 
   delete(id: number): Observable<{ message: string }> {
-    return this.http.delete<DeleteBackendResponse>(`/api/pages/${id}`);
+    return this.http.delete<DeleteBackendResponse>(`/api/levels/${id}`);
   }
 }

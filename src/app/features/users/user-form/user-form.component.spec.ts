@@ -6,8 +6,8 @@ import { Validators } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserFormComponent } from './user-form.component';
-import { UserService } from '../../../shared/services/user.service';
-import { LevelService } from '../../../shared/services/level.service';
+import { UserService } from '../../users/user.service';
+import { LevelService } from '../../levels/level.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import type { User } from '../../../shared/models/user.model';
@@ -53,6 +53,7 @@ describe('UserFormComponent', () => {
     errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', [
       'handle',
       'handleFormErrors',
+      'handleFormSubmitError',
       'getErrorMessage',
     ]);
     errorHandler.handleFormErrors.and.returnValue({});
@@ -96,6 +97,7 @@ describe('UserFormComponent', () => {
     errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', [
       'handle',
       'handleFormErrors',
+      'handleFormSubmitError',
       'getErrorMessage',
     ]);
     errorHandler.handleFormErrors.and.returnValue({});
@@ -211,16 +213,16 @@ describe('UserFormComponent', () => {
         },
         status: 422,
       });
-      errorHandler.handleFormErrors.and.returnValue({ username: ['Username already taken'] });
       userService.update.and.returnValue(throwError(() => validationErr));
 
       component.form.patchValue({ full_name: 'Test' });
       component.onSubmit();
 
-      expect(errorHandler.handleFormErrors).toHaveBeenCalledWith(validationErr);
-      expect(component.form.get('username')?.errors).toEqual({
-        server: ['Username already taken'],
-      });
+      expect(errorHandler.handleFormSubmitError).toHaveBeenCalledWith(
+        validationErr,
+        component.form,
+        component.serverErrors,
+      );
     });
   });
 });

@@ -3,7 +3,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { PageFormComponent } from './page-form.component';
-import { PageService } from '../../../shared/services/page.service';
+import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 
 describe('PageFormComponent', () => {
@@ -14,7 +14,7 @@ describe('PageFormComponent', () => {
 
   beforeEach(async () => {
     pageService = jasmine.createSpyObj<PageService>('PageService', ['list', 'getById', 'create', 'update', 'delete']);
-    errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', ['handle', 'handleFormErrors', 'getErrorMessage']);
+    errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', ['handle', 'handleFormErrors', 'handleFormSubmitError', 'getErrorMessage']);
 
     await TestBed.configureTestingModule({
       imports: [PageFormComponent, NoopAnimationsModule, RouterTestingModule],
