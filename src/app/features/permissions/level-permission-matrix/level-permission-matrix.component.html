@@ -1,10 +1,32 @@
 <mat-card class="matrix-card">
   <div class="card-header">
     <h2>Permissions for Level</h2>
-    <a mat-icon-button routerLink="/admin/levels" matTooltip="Back to Levels">
-      <mat-icon>arrow_back</mat-icon>
-    </a>
+    <div class="header-actions">
+      @if (hasPendingChanges()) {
+        <button
+          mat-stroked-button
+          color="primary"
+          (click)="saveNow()"
+          [disabled]="isSavingAll()"
+        >
+          @if (isSavingAll()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          }
+          Save Changes
+        </button>
+      }
+      <a mat-icon-button routerLink="/admin/levels" matTooltip="Back to Levels">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+    </div>
   </div>
+
+  @if (hasPendingChanges() && !isSavingAll()) {
+    <div class="pending-banner">
+      <mat-icon>info</mat-icon>
+      <span>{{ pendingCount() }} unsaved change{{ pendingCount() > 1 ? 's' : '' }}. Click "Save Changes" or wait to auto-save.</span>
+    </div>
+  }
 
   <mat-card-content>
     @if (isLoading()) {
@@ -31,7 +53,7 @@
         <td mat-cell *matCellDef="let entry">
           <mat-checkbox
             [checked]="entry.has_access"
-            [disabled]="isSaving()[entry.id]"
+            [disabled]="isSavingAll()"
             (change)="onToggle(entry, $event.checked)">
           </mat-checkbox>
         </td>

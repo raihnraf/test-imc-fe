@@ -1,5 +1,16 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, forkJoin, EMPTY } from 'rxjs';
+import { debounceTime, switchMap, catchError } from 'rxjs/operators';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -12,6 +23,11 @@ import { CommonModule } from '@angular/common';
 import { PermissionService } from '../../../core/services/permission.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import type { PermissionEntry } from '../../../shared/models/permission.model';
+
+interface PendingChange {
+  entryId: number;
+  checked: boolean;
+}
 
 @Component({
   selector: 'app-level-permission-matrix',
@@ -29,19 +45,37 @@ import type { PermissionEntry } from '../../../shared/models/permission.model';
   ],
   templateUrl: './level-permission-matrix.component.html',
   styleUrls: ['./level-permission-matrix.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LevelPermissionMatrixComponent implements OnInit {
   private readonly permissionService = inject(PermissionService);
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly levelId = signal<number | null>(null);
   readonly matrix = signal<PermissionEntry[]>([]);
   readonly isLoading = signal(false);
-  readonly isSaving = signal<Record<number, boolean>>({});
+  readonly isSavingAll = signal(false);
+  readonly pendingChanges = signal<Map<number, boolean>>(new Map());
+
+  private readonly flushSubject = new Subject<void>();
+
+  readonly hasPendingChanges = computed(() => this.pendingChanges().size > 0);
+  readonly pendingCount = computed(() => this.pendingChanges().size);
 
   readonly displayedColumns: string[] = ['name', 'route_path', 'has_access'];
+
+  constructor() {
+    this.flushSubject
+      .pipe(
+        debounceTime(500),
+        switchMap(() => this.flushPendingChanges()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -67,27 +101,43 @@ export class LevelPermissionMatrixComponent implements OnInit {
   }
 
   onToggle(entry: PermissionEntry, checked: boolean): void {
-    if (!this.levelId()) return;
-    this.isSaving.update((s) => ({ ...s, [entry.id]: true }));
+    const updated = new Map(this.pendingChanges());
+    updated.set(entry.id, checked);
+    this.pendingChanges.set(updated);
+    this.matrix.update((m) =>
+      m.map((e) => (e.id === entry.id ? { ...e, has_access: checked } : e)),
+    );
+    this.flushSubject.next();
+  }
 
-    const request$ = checked
-      ? this.permissionService.grantLevelPermission(this.levelId()!, entry.id)
-      : this.permissionService.revokeLevelPermission(this.levelId()!, entry.id);
+  saveNow(): void {
+    this.flushSubject.next();
+  }
 
-    request$.subscribe({
-      next: () => {
-        this.matrix.update((m) =>
-          m.map((e) => (e.id === entry.id ? { ...e, has_access: checked } : e)),
-        );
-        this.isSaving.update((s) => ({ ...s, [entry.id]: false }));
-      },
-      error: (err) => {
-        this.errorHandler.handle(err);
-        this.isSaving.update((s) => ({ ...s, [entry.id]: false }));
-        this.matrix.update((m) =>
-          m.map((e) => (e.id === entry.id ? { ...e, has_access: !checked } : e)),
-        );
-      },
-    });
+  private flushPendingChanges() {
+    const changes = this.pendingChanges();
+    if (changes.size === 0 || !this.levelId()) {
+      return EMPTY;
+    }
+
+    this.isSavingAll.set(true);
+    const entries = Array.from(changes.entries());
+    this.pendingChanges.set(new Map());
+
+    const requests = entries.map(([entryId, checked]) =>
+      (checked
+        ? this.permissionService.grantLevelPermission(this.levelId()!, entryId)
+        : this.permissionService.revokeLevelPermission(this.levelId()!, entryId)
+      ).pipe(
+        catchError((err) => {
+          this.errorHandler.handle(err);
+          return EMPTY;
+        }),
+      ),
+    );
+
+    return forkJoin(requests).pipe(
+      catchError(() => EMPTY),
+    );
   }
 }

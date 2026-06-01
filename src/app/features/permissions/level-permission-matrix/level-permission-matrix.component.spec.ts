@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -10,14 +10,14 @@ import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { LevelPermissionMatrixComponent } from './level-permission-matrix.component';
 import { AuthService } from '../../../core/services/auth.service';
-import type { User } from '../../../shared/models/auth.model';
+import type { AuthUser } from '../../../shared/models/auth.model';
 
 describe('LevelPermissionMatrixComponent', () => {
   let component: LevelPermissionMatrixComponent;
   let fixture: ComponentFixture<LevelPermissionMatrixComponent>;
   let httpMock: HttpTestingController;
 
-  const mockUser: User = {
+  const mockUser: AuthUser = {
     id: 1,
     username: 'admin',
     full_name: 'Admin User',
@@ -51,64 +51,104 @@ describe('LevelPermissionMatrixComponent', () => {
     httpMock.verify();
   });
 
-  it('should create and load matrix', () => {
+  function createAndLoad(): void {
     fixture = TestBed.createComponent(LevelPermissionMatrixComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    const req = httpMock.expectOne('/api/permissions/matrix?level_id=1');
-    req.flush({
+    const loadReq = httpMock.expectOne('/api/permissions/matrix?level_id=1');
+    loadReq.flush({
       data: [
         { id: 1, name: 'Users', route_path: '/users', has_access: true },
         { id: 2, name: 'Levels', route_path: '/levels', has_access: false },
       ],
     });
+  }
+
+  it('should create and load matrix', () => {
+    createAndLoad();
 
     expect(component).toBeTruthy();
     expect(component.matrix().length).toBe(2);
     expect(component.matrix()[0].name).toBe('Users');
   });
 
-  it('should call grantLevelPermission when toggle is checked', () => {
-    fixture = TestBed.createComponent(LevelPermissionMatrixComponent);
-    component = fixture.componentInstance;
+  it('should queue change and show pending state on toggle', () => {
+    createAndLoad();
+
+    component.onToggle(component.matrix()[1], true);
+
+    expect(component.hasPendingChanges()).toBeTrue();
+    expect(component.pendingCount()).toBe(1);
+    expect(component.matrix()[1].has_access).toBeTrue();
+  });
+
+  it('should flush pending changes on saveNow', fakeAsync(() => {
+    createAndLoad();
+
+    component.onToggle(component.matrix()[1], true);
+    component.saveNow();
+    tick(550);
     fixture.detectChanges();
-
-    const loadReq = httpMock.expectOne('/api/permissions/matrix?level_id=1');
-    loadReq.flush({
-      data: [
-        { id: 5, name: 'Users', route_path: '/users', has_access: false },
-      ],
-    });
-
-    component.onToggle(component.matrix()[0], true);
 
     const grantReq = httpMock.expectOne('/api/levels/1/permissions');
     expect(grantReq.request.method).toBe('POST');
-    expect(grantReq.request.body).toEqual({ page_id: 5 });
+    expect(grantReq.request.body).toEqual({ page_id: 2 });
     grantReq.flush({ message: 'Permission granted' });
 
-    expect(component.matrix()[0].has_access).toBeTrue();
-  });
+    tick(50);
+    fixture.detectChanges();
+    expect(component.hasPendingChanges()).toBeFalse();
+    expect(component.matrix()[1].has_access).toBeTrue();
+  }));
 
-  it('should call revokeLevelPermission when toggle is unchecked', () => {
-    fixture = TestBed.createComponent(LevelPermissionMatrixComponent);
-    component = fixture.componentInstance;
+  it('should auto-flush pending changes after debounce', fakeAsync(() => {
+    createAndLoad();
+
+    component.onToggle(component.matrix()[1], true);
+    tick(550);
     fixture.detectChanges();
 
-    const loadReq = httpMock.expectOne('/api/permissions/matrix?level_id=1');
-    loadReq.flush({
-      data: [
-        { id: 5, name: 'Users', route_path: '/users', has_access: true },
-      ],
-    });
+    const grantReq = httpMock.expectOne('/api/levels/1/permissions');
+    expect(grantReq.request.method).toBe('POST');
+    grantReq.flush({ message: 'Permission granted' });
+
+    tick(50);
+    fixture.detectChanges();
+    expect(component.hasPendingChanges()).toBeFalse();
+  }));
+
+  it('should batch multiple toggles into single flush', fakeAsync(() => {
+    createAndLoad();
 
     component.onToggle(component.matrix()[0], false);
+    component.onToggle(component.matrix()[1], true);
+    tick(550);
+    fixture.detectChanges();
+
+    const requests = httpMock.match('/api/levels/1/permissions');
+    expect(requests.length).toBe(2);
+    requests.forEach((req) => req.flush({ message: 'ok' }));
+
+    tick(50);
+    fixture.detectChanges();
+    expect(component.hasPendingChanges()).toBeFalse();
+  }));
+
+  it('should call revokeLevelPermission when toggle is unchecked', fakeAsync(() => {
+    createAndLoad();
+
+    component.onToggle(component.matrix()[0], false);
+    component.saveNow();
+    tick(550);
+    fixture.detectChanges();
 
     const revokeReq = httpMock.expectOne('/api/levels/1/permissions');
     expect(revokeReq.request.method).toBe('DELETE');
     revokeReq.flush({ message: 'Permission revoked' });
 
+    tick(50);
+    fixture.detectChanges();
     expect(component.matrix()[0].has_access).toBeFalse();
-  });
+  }));
 });
