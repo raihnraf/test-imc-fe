@@ -7,7 +7,14 @@ export const ADMIN_ROUTES: Routes = [
     path: '',
     component: AdminLayoutComponent,
     children: [
-      { path: '', redirectTo: 'users', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('../shared/pages/dashboard/dashboard.component').then(
+            (m) => m.DashboardComponent,
+          ),
+      },
       {
         path: 'users',
         canActivate: [permissionGuard],
@@ -107,7 +114,7 @@ export const ADMIN_ROUTES: Routes = [
             (m) => m.PageFormComponent,
           ),
       },
-      { path: '**', redirectTo: 'users' },
+      { path: '**', redirectTo: 'dashboard' },
     ],
   },
 ];

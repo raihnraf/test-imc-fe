@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map, tap, catchError, of } from 'rxjs';
 import { AuthService } from './auth.service';
 import type {
   PermissionEntry,
@@ -31,6 +31,10 @@ export class PermissionService {
           this._permissions.set(lookup);
         }),
         map(() => void 0),
+        catchError(() => {
+          this._permissions.set({});
+          return of(void 0);
+        }),
       );
   }
 

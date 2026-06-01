@@ -1,0 +1,57 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h2 class="dashboard-greeting">Welcome back, {{ displayName() }}</h2>
+    <p class="dashboard-subtitle">Here's an overview of your access.</p>
+  </div>
+
+  <div class="dashboard-grid">
+    @if (permissionService.permissions()['/users'] === true) {
+      <mat-card class="dashboard-card" [routerLink]="['/admin/users']">
+        <mat-card-content class="card-content">
+          <mat-icon class="card-icon">people</mat-icon>
+          <div class="card-text">
+            <h3>Users</h3>
+            <p>Manage user accounts</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (permissionService.permissions()['/levels'] === true) {
+      <mat-card class="dashboard-card" [routerLink]="['/admin/levels']">
+        <mat-card-content class="card-content">
+          <mat-icon class="card-icon">layers</mat-icon>
+          <div class="card-text">
+            <h3>Levels</h3>
+            <p>Manage access levels</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (permissionService.permissions()['/pages'] === true) {
+      <mat-card class="dashboard-card" [routerLink]="['/admin/pages']">
+        <mat-card-content class="card-content">
+          <mat-icon class="card-icon">description</mat-icon>
+          <div class="card-text">
+            <h3>Pages</h3>
+            <p>Manage system pages</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  @if (
+    permissionService.permissions()['/users'] !== true &&
+    permissionService.permissions()['/levels'] !== true &&
+    permissionService.permissions()['/pages'] !== true
+  ) {
+    <mat-card class="dashboard-empty">
+      <mat-card-content>
+        <mat-icon color="disabled">info</mat-icon>
+        <p>You don't have access to any modules yet. Contact your administrator.</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

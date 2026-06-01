@@ -12,7 +12,7 @@
 
     <nav class="sidenav-nav">
       @for (item of navItems; track item.route) {
-        @if (permissionService.permissions()[item.permission] === true) {
+        @if (!item.permission || permissionService.permissions()[item.permission] === true) {
           <a
             class="nav-link"
             [routerLink]="item.route"

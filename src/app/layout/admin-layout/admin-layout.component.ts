@@ -75,10 +75,12 @@ export class AdminLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.levelService.list({ perPage: 100 }).subscribe({
       next: (res) => this.levels.set(res.data),
+      error: () => this.levels.set([]),
     });
   }
 
   readonly navItems: NavItem[] = [
+    { route: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard', permission: '' },
     { route: '/admin/users', label: 'Users', icon: 'people', permission: '/users' },
     { route: '/admin/levels', label: 'Levels', icon: 'layers', permission: '/levels' },
     { route: '/admin/pages', label: 'Pages', icon: 'description', permission: '/pages' },
