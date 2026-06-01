@@ -147,7 +147,7 @@
   }
 
   .status-dot--active {
-    background: #22c55e;
+    background: var(--color-success);
   }
 
   .status-dot--inactive {
@@ -160,7 +160,7 @@
   }
 
   .status-label--active {
-    color: #16a34a;
+    color: var(--color-success-dark);
   }
 
   .status-label--inactive {
