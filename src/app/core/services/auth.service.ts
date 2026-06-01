@@ -44,6 +44,7 @@ export class AuthService {
     this._accessToken.set(null);
     this._user.set(null);
     sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('user');
     this.router.navigate(['/login']);
   }
 
@@ -77,10 +78,19 @@ export class AuthService {
       return of(false);
     }
 
+    const storedUser = sessionStorage.getItem('user');
+    if (storedUser) {
+      try {
+        this._user.set(JSON.parse(storedUser));
+      } catch {
+        sessionStorage.removeItem('user');
+      }
+    }
+
     return this.refreshToken().pipe(
       map(() => true),
       catchError(() => {
-        sessionStorage.removeItem('refresh_token');
+        this.clearSession();
         return of(false);
       }),
     );
@@ -90,5 +100,6 @@ export class AuthService {
     this._accessToken.set(data.access_token);
     this._user.set(data.user);
     sessionStorage.setItem('refresh_token', data.refresh_token);
+    sessionStorage.setItem('user', JSON.stringify(data.user));
   }
 }

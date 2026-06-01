@@ -13,7 +13,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="page-form">
       <mat-form-field appearance="outline">
         <mat-label>Page Name</mat-label>
-        <input matInput formControlName="name" placeholder="e.g. Dashboard" />
+        <input matInput formControlName="name" placeholder="e.g. Manajemen Pengguna" />
         @if (nameControl?.hasError('required') && nameControl?.touched) {
           <mat-error>Page name is required</mat-error>
         }
@@ -27,7 +27,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Route Path</mat-label>
-        <input matInput formControlName="route_path" placeholder="e.g. /dashboard" />
+        <input matInput formControlName="route_path" placeholder="e.g. /manajemen-pengguna" />
         <mat-hint>Must start with / and contain no spaces</mat-hint>
         @if (routePathControl?.hasError('required') && routePathControl?.touched) {
           <mat-error>Route path is required</mat-error>

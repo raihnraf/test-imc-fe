@@ -13,9 +13,9 @@
 
   .page-title {
     margin: 0;
-    font-size: 24px;
-    line-height: 32px;
-    font-weight: 600;
+    font-size: 34px;
+    line-height: 42px;
+    font-weight: 700;
     color: var(--color-on-surface);
     letter-spacing: -0.01em;
   }
@@ -23,10 +23,10 @@
   .filter-bar {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--gap-gutter);
+    gap: 1.25rem;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 20px;
     background: var(--color-surface-container-lowest);
     border-radius: var(--radius-xl);
     border: 1px solid var(--color-outline-variant);
@@ -47,7 +47,7 @@
   }
 
   .search-field {
-    width: 260px;
+    width: 300px;
   }
 
   .search-icon {
@@ -56,12 +56,12 @@
   }
 
   .filter-field {
-    width: 150px;
+    width: 170px;
   }
 
   .showing-counter {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: 15px;
+    line-height: 22px;
     color: var(--color-on-surface-variant);
     white-space: nowrap;
 
@@ -92,18 +92,44 @@
 
   .data-table {
     width: 100%;
+
+    .mat-mdc-header-cell {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 22px;
+      padding: 16px 18px;
+      background: var(--color-surface-container-low);
+      color: var(--color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 2px solid var(--color-outline-variant);
+    }
+
+    .mat-mdc-cell {
+      padding: 16px 18px;
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .mat-mdc-row {
+      border-bottom: 1px solid var(--color-outline-variant);
+
+      &:hover {
+        background: var(--color-surface-container-low);
+      }
+    }
   }
 
   .cell-name {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 17px;
+    line-height: 24px;
     font-weight: 600;
     color: var(--color-on-surface);
   }
 
   .cell-secondary {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 24px;
     color: var(--color-on-surface-variant);
   }
 
@@ -114,8 +140,8 @@
   }
 
   .status-dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
   }
@@ -129,8 +155,8 @@
   }
 
   .status-label {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: 15px;
+    line-height: 22px;
   }
 
   .status-label--active {
@@ -152,15 +178,15 @@
   }
 
   .action-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     color: var(--color-on-surface-variant);
     border-radius: var(--radius-lg) !important;
 
     mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     &:hover {
@@ -176,5 +202,34 @@
 
   .inactive-row {
     opacity: 0.55;
+  }
+
+  .mat-mdc-paginator {
+    font-size: 15px;
+
+    .mat-mdc-paginator-page-size-label {
+      font-size: 15px;
+      margin-right: 8px;
+    }
+
+    .mat-mdc-paginator-page-size {
+      font-size: 15px;
+    }
+
+    .mat-mdc-paginator-range-label {
+      font-size: 15px;
+    }
+
+    .mat-mdc-paginator-icon {
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
+    }
+
+    .mdc-icon-button {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+    }
   }
 }

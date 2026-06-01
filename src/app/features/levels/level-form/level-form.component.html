@@ -13,7 +13,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="level-form">
       <mat-form-field appearance="outline">
         <mat-label>Level Name</mat-label>
-        <input matInput formControlName="name" placeholder="e.g. Administrator" />
+        <input matInput formControlName="name" placeholder="e.g. Admin Utama" />
         @if (nameControl?.hasError('required') && nameControl?.touched) {
           <mat-error>Level name is required</mat-error>
         }

@@ -13,7 +13,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="user-form">
       <mat-form-field appearance="outline">
         <mat-label>Full Name</mat-label>
-        <input matInput formControlName="full_name" placeholder="e.g. John Doe" />
+        <input matInput formControlName="full_name" placeholder="e.g. Budi Santoso" />
         @if (fullNameControl?.hasError('required') && fullNameControl?.touched) {
           <mat-error>Full name is required</mat-error>
         }
@@ -27,7 +27,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
-        <input matInput formControlName="username" placeholder="e.g. johndoe" />
+        <input matInput formControlName="username" placeholder="e.g. budi_santoso" />
         @if (usernameControl?.hasError('required') && usernameControl?.touched) {
           <mat-error>Username is required</mat-error>
         }
@@ -44,7 +44,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" placeholder="e.g. john@example.com" />
+        <input matInput formControlName="email" type="email" placeholder="e.g. budi@contoh.co.id" />
         @if (emailControl?.hasError('required') && emailControl?.touched) {
           <mat-error>Email is required</mat-error>
         }
