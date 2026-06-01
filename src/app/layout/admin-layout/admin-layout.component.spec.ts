@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { AdminLayoutComponent } from './admin-layout.component';
 import { AuthService } from '../../core/services/auth.service';
 import { PermissionService } from '../../core/services/permission.service';
+import { LevelService } from '../../shared/services/level.service';
 import type { User } from '../../shared/models/auth.model';
 
 describe('AdminLayoutComponent', () => {
@@ -25,6 +26,9 @@ describe('AdminLayoutComponent', () => {
     observe: jasmine.createSpy('observe').and.returnValue(of({ matches: false })),
   };
 
+  const mockLevelService = jasmine.createSpyObj<LevelService>('LevelService', ['list']);
+  mockLevelService.list.and.returnValue(of({ data: [], total: 0, page: 1, perPage: 100 }));
+
   function setupWithPermissions(perms: Record<string, boolean>): void {
     TestBed.resetTestingModule();
 
@@ -42,6 +46,7 @@ describe('AdminLayoutComponent', () => {
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: PermissionService, useValue: permSpy },
+        { provide: LevelService, useValue: mockLevelService },
         { provide: BreakpointObserver, useValue: mockBreakpointObserver },
       ],
     }).compileComponents();
@@ -74,13 +79,15 @@ describe('AdminLayoutComponent', () => {
       '/pages': true,
     });
 
-    const navLinks = fixture.nativeElement.querySelectorAll('a[mat-list-item]');
+    const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
     expect(navLinks.length).toBe(2);
 
-    const texts = (Array.from(navLinks) as HTMLElement[]).map((el) => el.textContent?.trim());
-    expect(texts).toContain('peopleUsers');
-    expect(texts).toContain('descriptionPages');
-    expect(texts).not.toContain('layersLevels');
+    const labels = (Array.from(navLinks) as HTMLElement[]).map((el) =>
+      el.querySelector('.nav-link-label')?.textContent?.trim() ?? '',
+    );
+    expect(labels).toContain('Users');
+    expect(labels).toContain('Pages');
+    expect(labels).not.toContain('Levels');
   });
 
   it('should hide nav items with permission false', () => {
@@ -90,14 +97,14 @@ describe('AdminLayoutComponent', () => {
       '/pages': false,
     });
 
-    const navLinks = fixture.nativeElement.querySelectorAll('a[mat-list-item]');
+    const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
     expect(navLinks.length).toBe(0);
   });
 
   it('should render toolbar title', () => {
     setupWithPermissions({});
     const title = fixture.nativeElement.querySelector('.toolbar-title');
-    expect(title.textContent).toContain('IMC Admin');
+    expect(title.textContent).toContain('User Management');
   });
 
   it('should return side mode when not on tablet', () => {

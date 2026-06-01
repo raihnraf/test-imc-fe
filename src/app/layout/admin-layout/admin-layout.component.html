@@ -1,41 +1,72 @@
 <mat-sidenav-container class="layout-container">
   <mat-sidenav #sidenav [mode]="sidenavMode()" [opened]="sidenavOpened()" class="layout-sidenav">
-    <mat-nav-list>
+    <div class="sidenav-brand">
+      <div class="brand-icon">
+        <mat-icon class="brand-icon-svg">admin_panel_settings</mat-icon>
+      </div>
+      <div class="brand-text">
+        <h1 class="brand-title">AdminConsole</h1>
+        <p class="brand-subtitle">Enterprise Suite</p>
+      </div>
+    </div>
+
+    <nav class="sidenav-nav">
       @for (item of navItems; track item.route) {
         @if (permissionService.permissions()[item.permission] === true) {
-          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            <span matListItemTitle>{{ item.label }}</span>
+          <a
+            class="nav-link"
+            [routerLink]="item.route"
+            routerLinkActive="nav-link--active"
+          >
+            <mat-icon class="nav-link-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-link-label">{{ item.label }}</span>
           </a>
         }
       }
-    </mat-nav-list>
+    </nav>
+
+    <div class="sidenav-footer">
+      <button mat-button class="footer-btn" (click)="handleLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar color="primary" class="layout-toolbar">
+    <mat-toolbar class="layout-toolbar">
       @if (isTablet()) {
-        <button mat-icon-button aria-label="Toggle navigation" (click)="toggleSidenav()">
+        <button mat-icon-button class="menu-toggle" aria-label="Toggle navigation" (click)="toggleSidenav()">
           <mat-icon>menu</mat-icon>
         </button>
       }
-      <span class="toolbar-title">IMC Admin</span>
+
+      <span class="toolbar-title">User Management</span>
+
       <span class="toolbar-spacer"></span>
-      <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
-        {{ displayName() }}
-        <mat-icon>arrow_drop_down</mat-icon>
-      </button>
-      <mat-menu #userMenu="matMenu">
-        <button mat-menu-item disabled>
-          <mat-icon>person</mat-icon>
-          <span>{{ displayName() }}</span>
+
+      <div class="toolbar-user">
+        <div class="user-info">
+          <p class="user-name">{{ displayName() }}</p>
+          @if (levelName()) {
+            <p class="user-level">{{ levelName() }}</p>
+          }
+        </div>
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-avatar-btn">
+          <div class="user-avatar">{{ displayName().charAt(0) }}</div>
         </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="handleLogout()">
-          <mat-icon>logout</mat-icon>
-          <span>Logout</span>
-        </button>
-      </mat-menu>
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item disabled>
+            <mat-icon>person</mat-icon>
+            <span>{{ displayName() }}</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="handleLogout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+      </div>
     </mat-toolbar>
 
     <main class="layout-content">

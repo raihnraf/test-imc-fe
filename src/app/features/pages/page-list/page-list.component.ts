@@ -20,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageService } from '../../../shared/services/page.service';
@@ -45,6 +46,7 @@ import type { Page } from '../../../shared/models/page.model';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatCardModule,
+    MatTooltipModule,
   ],
   templateUrl: './page-list.component.html',
   styleUrls: ['./page-list.component.scss'],

@@ -1,49 +1,37 @@
-.user-list-card {
-  margin: 0;
-}
+@use '../../../shared/styles/list-page' as lp;
 
-.list-toolbar {
+@include lp.list-page-styles;
+
+.breadcrumb {
   display: flex;
-  gap: 16px;
   align-items: center;
-  padding: 16px;
-  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 500;
+  padding-bottom: 2px;
 }
 
-.search-field {
-  flex: 1;
-  min-width: 200px;
+.breadcrumb-separator {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--color-on-surface-variant);
 }
 
-.filter-field {
-  width: 160px;
+.breadcrumb-item--active {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
-.toolbar-spacer {
-  flex: 1 1 auto;
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  padding: 24px;
-}
-
-.user-table {
-  width: 100%;
-}
-
-.inactive-row {
-  opacity: 0.6;
-  background-color: #fafafa;
-}
-
-.actions-cell {
-  white-space: nowrap;
-  text-align: right;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.level-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  background: rgba(79, 70, 229, 0.08);
+  color: var(--color-primary);
+  border: 1px solid rgba(53, 37, 205, 0.2);
 }

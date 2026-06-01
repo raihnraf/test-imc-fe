@@ -1,82 +1,116 @@
-<mat-card class="level-list-card">
-  <div class="list-toolbar">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Search levels...</mat-label>
-      <input matInput (input)="onSearch($event)" placeholder="Name or description" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label>Status</mat-label>
-      <mat-select (selectionChange)="onStatusFilter($event.value)" [value]="null">
-        <mat-option [value]="null">All</mat-option>
-        <mat-option [value]="true">Active</mat-option>
-        <mat-option [value]="false">Inactive</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <span class="toolbar-spacer"></span>
-
-    <button mat-raised-button color="primary" routerLink="/admin/levels/new">
-      <mat-icon>add</mat-icon>
-      Create Level
-    </button>
+<div class="list-page">
+  <div class="page-header">
+    <h2 class="page-title">Levels</h2>
   </div>
 
-  @if (isLoading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
+  <div class="filter-bar">
+    <div class="filter-left">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix class="search-icon">search</mat-icon>
+        <input matInput (input)="onSearch($event)" placeholder="Search levels..." />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select (selectionChange)="onStatusFilter($event.value)" [value]="null">
+          <mat-option [value]="null">All</mat-option>
+          <mat-option [value]="true">Active</mat-option>
+          <mat-option [value]="false">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
-  }
 
-  <table mat-table [dataSource]="items()" class="level-table">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let level">{{ level.name }}</td>
-    </ng-container>
+    <div class="filter-right">
+      <span class="showing-counter">
+        Showing <strong>{{ items().length }}</strong> of <strong>{{ totalItems() }}</strong> levels
+      </span>
 
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef>Description</th>
-      <td mat-cell *matCellDef="let level" class="description-cell">{{ level.description }}</td>
-    </ng-container>
+      <button mat-raised-button color="primary" routerLink="/admin/levels/new" class="create-btn">
+        <mat-icon>add</mat-icon>
+        Create Level
+      </button>
+    </div>
+  </div>
 
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let level">
-        <mat-chip [color]="level.is_active ? 'primary' : 'warn'" highlighted>
-          {{ level.is_active ? 'Active' : 'Inactive' }}
-        </mat-chip>
-      </td>
-    </ng-container>
+  <mat-card class="table-card">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    }
 
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let level" class="actions-cell">
-        <button mat-icon-button color="accent" (click)="handlePermissions(level)" matTooltip="Manage permissions">
-          <mat-icon>security</mat-icon>
-        </button>
-        <button mat-icon-button color="primary" [routerLink]="['/admin/levels', level.id, 'edit']">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="handleDelete(level)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+    <table mat-table [dataSource]="items()" class="data-table">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let level">
+          <span class="cell-name">{{ level.name }}</span>
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: displayedColumns()"
-      [class.inactive-row]="!row.is_active"
-    ></tr>
-  </table>
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let level">
+          <span class="cell-secondary">{{ level.description || '—' }}</span>
+        </td>
+      </ng-container>
 
-  <mat-paginator
-    [length]="totalItems()"
-    [pageSize]="pageSize()"
-    [pageIndex]="currentPage() - 1"
-    [pageSizeOptions]="[5, 10, 15, 25]"
-    (page)="onPageChange($event)"
-    showFirstLastButtons
-  ></mat-paginator>
-</mat-card>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let level">
+          <div class="status-indicator">
+            <span class="status-dot" [class.status-dot--active]="level.is_active" [class.status-dot--inactive]="!level.is_active"></span>
+            <span class="status-label" [class.status-label--active]="level.is_active" [class.status-label--inactive]="!level.is_active">
+              {{ level.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header"></th>
+        <td mat-cell *matCellDef="let level" class="actions-cell">
+          <button
+            mat-icon-button
+            class="action-btn"
+            (click)="handlePermissions(level)"
+            matTooltip="Manage permissions"
+          >
+            <mat-icon>security</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="action-btn"
+            [routerLink]="['/admin/levels', level.id, 'edit']"
+            matTooltip="Edit level"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="action-btn action-btn--danger"
+            (click)="handleDelete(level)"
+            matTooltip="Delete level"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns()"
+        [class.inactive-row]="!row.is_active"
+      ></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalItems()"
+      [pageSize]="pageSize()"
+      [pageIndex]="currentPage() - 1"
+      [pageSizeOptions]="[5, 10, 15, 25]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    ></mat-paginator>
+  </mat-card>
+</div>
