@@ -30,7 +30,17 @@ export class AuthService {
       .pipe(tap((res) => this.setSession(res.data)));
   }
 
-  logout(): void {
+  logout(): Observable<void> {
+    return this.http.post<void>('/auth/logout', {}).pipe(
+      tap(() => this.clearSession()),
+      catchError(() => {
+        this.clearSession();
+        return of(undefined);
+      }),
+    );
+  }
+
+  private clearSession(): void {
     this._accessToken.set(null);
     this._user.set(null);
     sessionStorage.removeItem('refresh_token');

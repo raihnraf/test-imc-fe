@@ -83,7 +83,8 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
     expect(sessionStorage.getItem('refresh_token')).not.toBeNull();
 
-    service.logout();
+    service.logout().subscribe();
+    httpMock.expectOne('/auth/logout').flush({ statusCode: 200, message: 'Successfully logged out', sessions_revoked: 1 });
 
     expect(service.isAuthenticated()).toBeFalse();
     expect(service.user()).toBeNull();

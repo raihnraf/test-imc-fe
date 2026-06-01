@@ -33,6 +33,7 @@ describe('AdminLayoutComponent', () => {
     TestBed.resetTestingModule();
 
     authService = jasmine.createSpyObj<AuthService>('AuthService', ['logout']);
+    authService.logout.and.returnValue(of(undefined));
     Object.defineProperty(authService, 'user', {
       value: signal(mockUser).asReadonly(),
     });

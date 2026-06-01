@@ -41,7 +41,7 @@ export const errorInterceptor: HttpInterceptorFn = (
           return next(retryReq);
         }),
         catchError(() => {
-          authService.logout();
+          authService.logout().subscribe();
           return throwError(() => error);
         }),
       );
