@@ -26,6 +26,11 @@ export const errorInterceptor: HttpInterceptorFn = (
         return throwError(() => error);
       }
 
+      // For logout requests, just re-throw — auth.service's catchError will call clearSession()
+      if (req.url.endsWith('/auth/logout')) {
+        return throwError(() => error);
+      }
+
       if (req.headers.has(RETRY_HEADER) || req.url === '/auth/refresh') {
         authService.logout().subscribe();
         return EMPTY;
