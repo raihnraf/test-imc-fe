@@ -22,6 +22,11 @@ export const errorInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      // Connection refused / network error — don't logout, let component handle
+      if (error.status === 0) {
+        return throwError(() => error);
+      }
+
       if (error.status !== 401) {
         return throwError(() => error);
       }
