@@ -174,3 +174,9 @@ img {
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-shape: var(--radius-lg);
 }
+
+.error-snackbar {
+  --mdc-snackbar-container-color: var(--color-error);
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mdc-snackbar-action-text-color: #ffffff;
+}

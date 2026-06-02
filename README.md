@@ -4,6 +4,42 @@ Angular 20 admin dashboard untuk manajemen user, level, halaman, dan permission 
 
 Dibangun sebagai submission technical test fullstack developer — fokus pada kualitas engineering, arsitektur yang maintainable, dan UX yang polished.
 
+## Quick Start (30 detik)
+
+```bash
+# 1. Pastikan backend (test-imc-be) sudah running di http://localhost:8080
+# 2. Install & jalankan frontend
+npm install && npm start
+```
+
+Buka http://localhost:4200.
+
+### Default Credentials
+
+| Role | Username | Password |
+|------|----------|----------|
+| Super Admin | `admin` | `admin123` |
+| Staff | `admin_dua` | `admin123` |
+| Viewer | `admin_satu` | `admin123` |
+
+## Architecture Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **Angular Signals** (bukan NgRx) | Admin dashboard dengan CRUD + auth punya state sederhana: auth token, user profile, list data. Signals + services menangani ini tanpa boilerplate 50+ file. |
+| **Standalone Components** (bukan NgModules) | Angular 20 default ke standalone. NgModules deprecated pattern — menambah ceremony tanpa benefit untuk project baru. |
+| **Functional HTTP Interceptors** (bukan class-based) | Angular v20 explicitly recommends functional interceptors. Lebih predictable ordering dan DI behavior dibanding class-based. |
+| **Functional Route Guards** (bukan class-based) | Angular v20 docs menunjukkan functional guards sebagai primary pattern. Lebih ringkas, bisa pakai `inject()` langsung. |
+| **Typed Reactive Forms** | `FormGroup<UserFormControls>` memberikan compile-time type safety pada form values dan errors. |
+| **Reactive Forms** (bukan Formly) | 3 CRUD forms (user, level, page) — Formly overkill untuk scope ini. |
+| **Token di sessionStorage** (bukan localStorage) | `localStorage` accessible oleh semua JS di halaman. `sessionStorage` cleared saat tab close — lebih aman untuk technical test demo. |
+| **`httpResource` hanya untuk read-only** | Angular docs secara eksplisit mengatakan hindari `httpResource` untuk mutations (POST/PUT/DELETE). Gunakan `HttpClient` langsung. |
+| **CSS Variables + Angular Material theming** (bukan Tailwind) | PROJECT.md constraint: "Angular Material only." CSS variables memungkinkan theming support dan dark-mode readiness tanpa menambah dependency. |
+| **OnPush Change Detection** di semua komponen | Zero unnecessary CD cycles. Signals-based reactivity sudah fine-grained — OnPush menambah layer optimasi. |
+| **`DataTableState` composable** | Shared pagination/search/filter/state abstraction di-abstract dari 3 list components — DRY tanpa over-engineering. |
+| **Circuit breaker di error interceptor** | Mencegah infinite refresh loop saat token refresh endpoint juga return 401. |
+| **Optimistic UI + debounced bulk-save** di permission matrix | Toggle checkbox langsung update UI, perubahan di-queue dan di-flush setelah 500ms idle — UX lebih responsive. |
+
 ## Fitur
 
 ### Autentikasi & Otorisasi
@@ -63,7 +99,7 @@ Dibangun sebagai submission technical test fullstack developer — fokus pada ku
 | **Error Handling** | Centralized `ErrorHandlerService` — form error mapping, snackbar notification, console logging semua di satu tempat |
 | **Auth Security** | Token hanya di-attach ke `/api/` dan `/auth/` URLs (bukan semua request). Circuit breaker di error interceptor — mencegah infinite refresh loop |
 | **Code Quality** | ESLint (@angular-eslint v20) + Prettier + `npm run typecheck`. 0 lint errors, 0 type errors |
-| **Testing** | 178 unit tests passing (Karma + Jasmine). Core auth flows tested dengan `HttpTestingController` |
+| **Testing** | 186 unit tests passing (Karma + Jasmine). Core auth flows tested dengan `HttpTestingController` |
 
 ## Tech Stack
 
@@ -75,7 +111,7 @@ Dibangun sebagai submission technical test fullstack developer — fokus pada ku
 - **ESLint** — `@angular-eslint` v20, TypeScript stylistic rules, template a11y rules
 - **Prettier** — formatting untuk TS, HTML, SCSS
 - **SCSS** — CSS variables, mixin-based shared styles, Material theming overrides
-- **Karma + Jasmine** — unit testing (178 tests)
+- **Karma + Jasmine** — unit testing (186 tests)
 - **Build**: ESBuild via `@angular/build:application`
 - **State**: Angular Signals + `rxjs-interop` (`toSignal`, `toObservable`), no NgRx
 
@@ -123,14 +159,14 @@ npm run format:check
 # Format fix
 npm run format
 
-# Unit tests (178 tests)
+# Unit tests (186 tests)
 npm test
 
 # Run spesifik test file
 npx ng test --include='**/user-list/**/*.spec.ts' --watch=false
 ```
 
-**Status:** 0 lint errors, 0 type errors, 178/178 tests passing.
+**Status:** 0 lint errors, 0 type errors, 186/186 tests passing.
 
 ## Production Build
 

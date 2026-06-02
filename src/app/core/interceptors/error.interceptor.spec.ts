@@ -42,7 +42,7 @@ describe('Interceptors', () => {
   let authService: AuthService;
 
   function loginAndFlush(): void {
-    authService.login({ username: 'admin', email: 'admin', password: 'pass' }).subscribe();
+    authService.login({ identifier: 'admin', password: 'pass' }).subscribe();
     httpMock.expectOne('/auth/login').flush({
       data: {
         ...mockLoginRes.data,
@@ -74,7 +74,7 @@ describe('Interceptors', () => {
   });
 
   it('should attach Bearer token when authenticated', () => {
-    authService.login({ username: 'admin', email: 'admin', password: 'pass' }).subscribe();
+    authService.login({ identifier: 'admin', password: 'pass' }).subscribe();
     httpMock.expectOne('/auth/login').flush(mockLoginRes);
 
     http.get('/api/test').subscribe();

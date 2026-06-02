@@ -14,7 +14,6 @@ import { UserPermissionOverrideComponent } from './user-permission-override.comp
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { AuthService } from '../../../core/services/auth.service';
 import type { AuthUser } from '../../../shared/models/auth.model';
-import type { Page } from '../../../shared/models/page.model';
 
 describe('UserPermissionOverrideComponent', () => {
   let component: UserPermissionOverrideComponent;
@@ -30,9 +29,9 @@ describe('UserPermissionOverrideComponent', () => {
     level_id: 1,
   };
 
-  const mockPages: Page[] = [
-    { id: 1, name: 'Users', route_path: '/users', description: null, display_order: 1, is_active: true, created_at: null, updated_at: null },
-    { id: 2, name: 'Levels', route_path: '/levels', description: null, display_order: 2, is_active: true, created_at: null, updated_at: null },
+  const mockMatrixEntries = [
+    { id: 1, name: 'Users', route_path: '/users', has_access: true },
+    { id: 2, name: 'Levels', route_path: '/levels', has_access: false },
   ];
 
   const mockOverrides = [
@@ -78,11 +77,8 @@ describe('UserPermissionOverrideComponent', () => {
     const overridesReq = httpMock.expectOne('/api/users/1/permissions');
     overridesReq.flush({ data: [] });
 
-    const pagesReq = httpMock.expectOne('/api/pages?page=1&per_page=100');
-    pagesReq.flush({
-      data: mockPages,
-      meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
-    });
+    const matrixReq = httpMock.expectOne('/api/permissions/matrix?user_id=1');
+    matrixReq.flush({ data: mockMatrixEntries });
 
     expect(component).toBeTruthy();
   });
@@ -95,11 +91,8 @@ describe('UserPermissionOverrideComponent', () => {
     const overridesReq = httpMock.expectOne('/api/users/1/permissions');
     overridesReq.flush({ data: [] });
 
-    const pagesReq = httpMock.expectOne('/api/pages?page=1&per_page=100');
-    pagesReq.flush({
-      data: mockPages,
-      meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
-    });
+    const matrixReq = httpMock.expectOne('/api/permissions/matrix?user_id=1');
+    matrixReq.flush({ data: mockMatrixEntries });
 
     component.onGrantOverride(1, true);
 
@@ -108,14 +101,11 @@ describe('UserPermissionOverrideComponent', () => {
     expect(grantReq.request.body).toEqual({ page_id: 1, is_granted: true });
     grantReq.flush({ message: 'Override added' });
 
-    const reloadReq = httpMock.expectOne('/api/users/1/permissions');
-    reloadReq.flush({ data: mockOverrides });
+    const reloadOverridesReq = httpMock.expectOne('/api/users/1/permissions');
+    reloadOverridesReq.flush({ data: mockOverrides });
 
-    const pagesReloadReq = httpMock.expectOne('/api/pages?page=1&per_page=100');
-    pagesReloadReq.flush({
-      data: mockPages,
-      meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
-    });
+    const reloadMatrixReq = httpMock.expectOne('/api/permissions/matrix?user_id=1');
+    reloadMatrixReq.flush({ data: mockMatrixEntries });
 
     expect(snackBar.open).toHaveBeenCalledWith('Override added', 'Close', jasmine.any(Object));
   });
@@ -130,11 +120,8 @@ describe('UserPermissionOverrideComponent', () => {
     const overridesReq = httpMock.expectOne('/api/users/1/permissions');
     overridesReq.flush({ data: mockOverrides });
 
-    const pagesReq = httpMock.expectOne('/api/pages?page=1&per_page=100');
-    pagesReq.flush({
-      data: mockPages,
-      meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
-    });
+    const matrixReq = httpMock.expectOne('/api/permissions/matrix?user_id=1');
+    matrixReq.flush({ data: mockMatrixEntries });
 
     component.onRemoveOverride(mockOverrides[0]);
 
@@ -149,10 +136,7 @@ describe('UserPermissionOverrideComponent', () => {
     expect(removeReq.request.method).toBe('DELETE');
     removeReq.flush({ message: 'Override removed' });
 
-    const pagesReloadReq = httpMock.expectOne('/api/pages?page=1&per_page=100');
-    pagesReloadReq.flush({
-      data: mockPages,
-      meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
-    });
+    const reloadMatrixReq = httpMock.expectOne('/api/permissions/matrix?user_id=1');
+    reloadMatrixReq.flush({ data: mockMatrixEntries });
   });
 });

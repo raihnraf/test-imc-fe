@@ -122,4 +122,65 @@ describe('LevelService', () => {
       req.flush({ message: 'Level deleted successfully' });
     });
   });
+
+  describe('cache invalidation', () => {
+    it('should invalidate cache after create', () => {
+      service.listCached().subscribe();
+      httpMock.expectOne('/api/levels?per_page=100').flush({
+        data: mockLevels,
+        meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
+      });
+
+      const newLevel: Level = { id: 3, name: 'New Level', description: '', is_active: true, created_at: null, updated_at: null };
+      service.create({ name: 'New Level' }).subscribe();
+      httpMock.expectOne('/api/levels').flush({ data: newLevel });
+
+      service.listCached().subscribe((levels) => {
+        expect(levels).toEqual([...mockLevels, newLevel]);
+      });
+      httpMock.expectOne('/api/levels?per_page=100').flush({
+        data: [...mockLevels, newLevel],
+        meta: { page: 1, per_page: 100, total: 3, total_pages: 1 },
+      });
+    });
+
+    it('should invalidate cache after update', () => {
+      service.listCached().subscribe();
+      httpMock.expectOne('/api/levels?per_page=100').flush({
+        data: mockLevels,
+        meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
+      });
+
+      const updated: Level = { ...mockLevel, name: 'Admin Updated' };
+      service.update(1, { name: 'Admin Updated' }).subscribe();
+      httpMock.expectOne('/api/levels/1').flush({ data: updated });
+
+      service.listCached().subscribe((levels) => {
+        expect(levels.find((l) => l.id === 1)?.name).toBe('Admin Updated');
+      });
+      httpMock.expectOne('/api/levels?per_page=100').flush({
+        data: [updated, mockLevels[1]],
+        meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
+      });
+    });
+
+    it('should invalidate cache after delete', () => {
+      service.listCached().subscribe();
+      httpMock.expectOne('/api/levels?per_page=100').flush({
+        data: mockLevels,
+        meta: { page: 1, per_page: 100, total: 2, total_pages: 1 },
+      });
+
+      service.delete(1).subscribe();
+      httpMock.expectOne('/api/levels/1').flush({ message: 'deleted' });
+
+      service.listCached().subscribe((levels) => {
+        expect(levels).toEqual([mockLevels[1]]);
+      });
+      httpMock.expectOne('/api/levels?per_page=100').flush({
+        data: [mockLevels[1]],
+        meta: { page: 1, per_page: 100, total: 1, total_pages: 1 },
+      });
+    });
+  });
 });

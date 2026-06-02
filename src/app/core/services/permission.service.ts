@@ -1,6 +1,7 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap, catchError, of } from 'rxjs';
+import { map, tap, catchError, of } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import type {
   PermissionEntry,
@@ -15,6 +16,10 @@ export class PermissionService {
   private readonly _permissions = signal<Record<string, boolean>>({});
 
   readonly permissions = this._permissions.asReadonly();
+
+  readonly hasAnyPermission = computed(() =>
+    Object.values(this._permissions()).some(Boolean),
+  );
 
   hasPermission(key: string): boolean {
     return !!this._permissions()[key];
@@ -44,13 +49,16 @@ export class PermissionService {
 
   refreshPermissions(): Observable<void> {
     const user = this.authService.user();
-    if (!user?.id) {
-      return new Observable((subscriber) => {
-        subscriber.next();
-        subscriber.complete();
-      });
-    }
+    if (!user?.id) return of(void 0);
     return this.loadPermissions(user.id);
+  }
+
+  loadUserMatrix(userId: number): Observable<PermissionEntry[]> {
+    return this.http
+      .get<{ data: PermissionEntry[] }>(
+        `/api/permissions/matrix?user_id=${userId}`,
+      )
+      .pipe(map((response) => response.data));
   }
 
   loadLevelMatrix(levelId: number): Observable<PermissionEntry[]> {

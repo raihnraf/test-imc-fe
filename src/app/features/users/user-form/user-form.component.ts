@@ -75,7 +75,11 @@ export class UserFormComponent implements OnInit {
   readonly isSubmitting = signal(false);
   readonly levels = signal<Level[]>([]);
   readonly serverErrors = signal<Record<string, string[]>>({});
-  hidePassword = true;
+  readonly hidePassword = signal(true);
+
+  togglePasswordVisibility(): void {
+    this.hidePassword.update(v => !v);
+  }
 
   readonly form: FormGroup<UserFormControls> = this.fb.group({
     full_name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(150)]),
@@ -105,8 +109,8 @@ export class UserFormComponent implements OnInit {
   }
 
   private loadLevels(): void {
-    this.levelService.list({ perPage: 100 }).subscribe({
-      next: (response) => this.levels.set(response.data),
+    this.levelService.listCached().subscribe({
+      next: (response) => this.levels.set(response),
       error: (err) => this.errorHandler.handle(err),
     });
   }

@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import type { Level, CreateLevelRequest, UpdateLevelRequest } from '../../shared/models/user.model';
 import type { PaginatedResponse } from '../../shared/models/api.model';
 
@@ -33,6 +33,16 @@ interface DeleteBackendResponse {
 @Injectable({ providedIn: 'root' })
 export class LevelService {
   private readonly http = inject(HttpClient);
+  private readonly _cache = signal<Level[] | null>(null);
+
+  listCached(): Observable<Level[]> {
+    const cached = this._cache();
+    if (cached) return of(cached);
+    return this.http.get<LevelListBackendResponse>('/api/levels?per_page=100').pipe(
+      map((response) => response.data),
+      tap((levels) => this._cache.set(levels)),
+    );
+  }
 
   list(params?: LevelListParams): Observable<PaginatedResponse<Level>> {
     let httpParams = new HttpParams()
@@ -65,16 +75,24 @@ export class LevelService {
   create(data: CreateLevelRequest): Observable<Level> {
     return this.http
       .post<LevelDetailBackendResponse>('/api/levels', data)
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => response.data),
+        tap(() => this._cache.set(null)),
+      );
   }
 
   update(id: number, data: UpdateLevelRequest): Observable<Level> {
     return this.http
       .put<LevelDetailBackendResponse>(`/api/levels/${id}`, data)
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => response.data),
+        tap(() => this._cache.set(null)),
+      );
   }
 
   delete(id: number): Observable<{ message: string }> {
-    return this.http.delete<DeleteBackendResponse>(`/api/levels/${id}`);
+    return this.http
+      .delete<DeleteBackendResponse>(`/api/levels/${id}`)
+      .pipe(tap(() => this._cache.set(null)));
   }
 }

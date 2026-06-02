@@ -25,7 +25,7 @@ describe('AuthInterceptor', () => {
   let authService: AuthService;
 
   function login() {
-    authService.login({ username: 'admin', email: 'admin', password: 'pass' }).subscribe();
+    authService.login({ identifier: 'admin', password: 'pass' }).subscribe();
     httpMock.expectOne('/auth/login').flush(mockLoginRes);
   }
 

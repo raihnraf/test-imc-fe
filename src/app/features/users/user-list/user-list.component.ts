@@ -74,7 +74,6 @@ export class UserListComponent implements OnInit {
   readonly users = signal<User[]>([]);
   readonly totalItems = signal(0);
   readonly levels = signal<Level[]>([]);
-  readonly levelFilter = signal<number | null>(null);
 
   readonly isTablet = toSignal(
     this.breakpointObserver
@@ -100,9 +99,8 @@ export class UserListComponent implements OnInit {
   loadUsers(): void {
     this.state.isLoading.set(true);
 
-    const levelId = this.levelFilter();
     this.userService
-      .list(this.state.toListParams<{ page: number; perPage: number; search?: string; isActive?: boolean; levelId?: number }>({ levelId }))
+      .list(this.state.toListParams<{ page: number; perPage: number; search?: string; isActive?: boolean; levelId?: number }>())
       .subscribe({
         next: (response) => {
           this.users.set(response.data);
@@ -117,8 +115,8 @@ export class UserListComponent implements OnInit {
   }
 
   private loadLevels(): void {
-    this.levelService.list({ perPage: 100 }).subscribe({
-      next: (response) => this.levels.set(response.data),
+    this.levelService.listCached().subscribe({
+      next: (response) => this.levels.set(response),
       error: (err) => this.errorHandler.handle(err),
     });
   }
@@ -134,8 +132,7 @@ export class UserListComponent implements OnInit {
   }
 
   onLevelFilter(levelId: number | null): void {
-    this.levelFilter.set(levelId);
-    this.state.resetPage();
+    this.state.onLevelFilter(levelId);
     this.loadUsers();
   }
 

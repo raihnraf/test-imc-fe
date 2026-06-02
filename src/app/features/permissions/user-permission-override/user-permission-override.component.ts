@@ -14,7 +14,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PermissionService } from '../../../core/services/permission.service';
-import { PageService } from '../../pages/page.service';
 import { ErrorHandlerService } from '../../../shared/services/error-handler.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import type { PermissionEntry } from '../../../shared/models/permission.model';
@@ -44,7 +43,6 @@ import type { UserPermissionOverride } from '../../../shared/models/permission.m
 })
 export class UserPermissionOverrideComponent implements OnInit {
   private readonly permissionService = inject(PermissionService);
-  private readonly pageService = inject(PageService);
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly route = inject(ActivatedRoute);
@@ -96,15 +94,11 @@ export class UserPermissionOverrideComponent implements OnInit {
   }
 
   private loadEffectivePermissions(): void {
-    this.pageService.list({ perPage: 100 }).subscribe({
-      next: (response) => {
-        const perms = this.permissionService.permissions();
-        const entries: PermissionEntry[] = response.data.map((page) => ({
-          id: page.id,
-          name: page.name,
-          route_path: page.route_path,
-          has_access: perms[page.route_path] === true,
-        }));
+    const userId = this.userId();
+    if (!userId) return;
+
+    this.permissionService.loadUserMatrix(userId).subscribe({
+      next: (entries) => {
         this.effectivePermissions.set(entries);
         this.isLoading.set(false);
       },

@@ -10,6 +10,7 @@ export class DataTableState {
   readonly currentPage = signal(1);
   readonly pageSize = signal(15);
   readonly statusFilter = signal<boolean | null>(null);
+  readonly levelFilter = signal<number | null>(null);
   readonly isLoading = signal(false);
   readonly searchQuery = signal('');
 
@@ -37,6 +38,11 @@ export class DataTableState {
     this.currentPage.set(1);
   }
 
+  onLevelFilter(levelId: number | null): void {
+    this.levelFilter.set(levelId);
+    this.currentPage.set(1);
+  }
+
   onPageChange(event: PageEvent): void {
     this.currentPage.set(event.pageIndex + 1);
     this.pageSize.set(event.pageSize);
@@ -60,6 +66,11 @@ export class DataTableState {
     const status = this.statusFilter();
     if (status !== null) {
       params['isActive'] = status;
+    }
+
+    const levelId = this.levelFilter();
+    if (levelId !== null) {
+      params['levelId'] = levelId;
     }
 
     if (extra) {

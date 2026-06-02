@@ -61,16 +61,16 @@
         <input
           matInput
           formControlName="password"
-          [type]="hidePassword ? 'password' : 'text'"
+          [type]="hidePassword() ? 'password' : 'text'"
           placeholder="{{ isEditMode() ? '(leave blank to keep current)' : 'Minimum 6 characters' }}"
         />
         <button
           mat-icon-button
           matSuffix
           type="button"
-          (click)="hidePassword = !hidePassword"
+          (click)="togglePasswordVisibility()"
         >
-          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (passwordControl?.hasError('required') && passwordControl?.touched) {
           <mat-error>Password is required</mat-error>

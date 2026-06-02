@@ -41,8 +41,8 @@ describe('UserListComponent', () => {
     userService = jasmine.createSpyObj<UserService>('UserService', ['list']);
     userService.list.and.returnValue(of(emptyResponse));
 
-    levelService = jasmine.createSpyObj<LevelService>('LevelService', ['list']);
-    levelService.list.and.returnValue(of({ data: mockLevels, total: 1, page: 1, perPage: 100 }));
+    levelService = jasmine.createSpyObj<LevelService>('LevelService', ['list', 'listCached']);
+    levelService.listCached.and.returnValue(of(mockLevels));
 
     errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', ['handle', 'handleFormErrors', 'getErrorMessage']);
 
@@ -82,7 +82,7 @@ describe('UserListComponent', () => {
     await setupComponent();
     fixture.detectChanges();
 
-    expect(levelService.list).toHaveBeenCalledWith({ perPage: 100 });
+    expect(levelService.listCached).toHaveBeenCalled();
     expect(component.levels()).toEqual(mockLevels);
   });
 
@@ -113,7 +113,7 @@ describe('UserListComponent', () => {
 
     component.onLevelFilter(1);
 
-    expect(component.levelFilter()).toBe(1);
+    expect(component.state.levelFilter()).toBe(1);
     expect(userService.list).toHaveBeenCalledWith(
       jasmine.objectContaining({ levelId: 1, page: 1 }),
     );

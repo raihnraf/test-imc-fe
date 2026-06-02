@@ -56,7 +56,7 @@ export class LoginComponent {
     const { identifier, password } = this.loginForm.getRawValue();
 
     this.authService
-      .login({ username: identifier, email: identifier, password })
+      .login({ identifier, password })
       .pipe(
         switchMap((res) => {
           const userId = res.data.user.id;

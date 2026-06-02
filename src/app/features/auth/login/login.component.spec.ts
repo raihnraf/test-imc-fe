@@ -73,14 +73,13 @@ describe('LoginComponent', () => {
     expect(component.loginForm.valid).toBeTrue();
   });
 
-  it('should call AuthService.login with both username and email fields on submit', () => {
+  it('should call AuthService.login with identifier mapped to username on submit', () => {
     component.loginForm.setValue({ identifier: 'admin', password: 'pass' });
     component.onSubmit();
 
     const req = httpMock.expectOne('/auth/login');
     expect(req.request.body).toEqual({
       username: 'admin',
-      email: 'admin',
       password: 'pass',
     });
     req.flush(mockLoginRes);

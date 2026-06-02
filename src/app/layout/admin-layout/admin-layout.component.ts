@@ -75,8 +75,8 @@ export class AdminLayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.levelService.list({ perPage: 100 }).subscribe({
-      next: (res) => this.levels.set(res.data),
+    this.levelService.listCached().subscribe({
+      next: (res) => this.levels.set(res),
       error: () => this.levels.set([]),
     });
   }

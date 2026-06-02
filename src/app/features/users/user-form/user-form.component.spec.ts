@@ -47,8 +47,8 @@ describe('UserFormComponent', () => {
     userService.create.and.returnValue(of(mockUser));
     userService.list.and.returnValue(of({ data: [], total: 0, page: 1, perPage: 15 }));
 
-    levelService = jasmine.createSpyObj<LevelService>('LevelService', ['list']);
-    levelService.list.and.returnValue(of({ data: mockLevels, total: 1, page: 1, perPage: 100 }));
+    levelService = jasmine.createSpyObj<LevelService>('LevelService', ['listCached']);
+    levelService.listCached.and.returnValue(of(mockLevels));
 
     errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', [
       'handle',
@@ -91,8 +91,8 @@ describe('UserFormComponent', () => {
     userService.update.and.returnValue(of(mockUser));
     userService.list.and.returnValue(of({ data: [], total: 0, page: 1, perPage: 15 }));
 
-    levelService = jasmine.createSpyObj<LevelService>('LevelService', ['list']);
-    levelService.list.and.returnValue(of({ data: mockLevels, total: 1, page: 1, perPage: 100 }));
+    levelService = jasmine.createSpyObj<LevelService>('LevelService', ['listCached']);
+    levelService.listCached.and.returnValue(of(mockLevels));
 
     errorHandler = jasmine.createSpyObj<ErrorHandlerService>('ErrorHandlerService', [
       'handle',

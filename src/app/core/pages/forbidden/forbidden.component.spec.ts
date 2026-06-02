@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 import { ForbiddenComponent } from './forbidden.component';
+import { AuthService } from '../../services/auth.service';
 
 describe('ForbiddenComponent', () => {
   let component: ForbiddenComponent;
@@ -10,6 +12,7 @@ describe('ForbiddenComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ForbiddenComponent, NoopAnimationsModule, RouterTestingModule],
+      providers: [provideHttpClient(), AuthService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ForbiddenComponent);

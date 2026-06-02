@@ -161,4 +161,25 @@ describe('PermissionService', () => {
     expect(req.request.body).toEqual({ page_id: 5 });
     req.flush({ message: 'Override removed' });
   });
+
+  it('hasAnyPermission should return false when permissions are empty', () => {
+    expect(service.hasAnyPermission()).toBeFalse();
+  });
+
+  it('hasAnyPermission should return false when all permissions are false', () => {
+    service['_permissions'].set({
+      '/dashboard': false,
+      '/users': false,
+    });
+    expect(service.hasAnyPermission()).toBeFalse();
+  });
+
+  it('hasAnyPermission should return true when at least one permission is true', () => {
+    service['_permissions'].set({
+      '/dashboard': false,
+      '/users': true,
+      '/levels': false,
+    });
+    expect(service.hasAnyPermission()).toBeTrue();
+  });
 });

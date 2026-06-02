@@ -25,8 +25,7 @@ export interface RefreshResponse {
 }
 
 export interface LoginCredentials {
-  username: string;
-  email: string;
+  identifier: string;
   password: string;
 }
 

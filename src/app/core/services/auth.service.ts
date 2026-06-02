@@ -27,7 +27,10 @@ export class AuthService {
 
   login(credentials: LoginCredentials): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>('/auth/login', credentials)
+      .post<LoginResponse>('/auth/login', {
+        username: credentials.identifier,
+        password: credentials.password,
+      })
       .pipe(tap((res) => this.setSession(res.data)));
   }
 

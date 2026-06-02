@@ -56,7 +56,7 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
 
     service
-      .login({ username: 'admin', email: 'admin', password: 'pass' })
+      .login({ identifier: 'admin', password: 'pass' })
       .subscribe((res) => {
         expect(res.data.access_token).toBe('access-abc');
       });
@@ -64,7 +64,6 @@ describe('AuthService', () => {
     const req = httpMock.expectOne('/auth/login');
     expect(req.request.body).toEqual({
       username: 'admin',
-      email: 'admin',
       password: 'pass',
     });
     req.flush(mockLoginRes);
@@ -76,7 +75,7 @@ describe('AuthService', () => {
 
   it('should clear signals and sessionStorage on logout', () => {
     service
-      .login({ username: 'admin', email: 'admin', password: 'pass' })
+      .login({ identifier: 'admin', password: 'pass' })
       .subscribe();
     httpMock.expectOne('/auth/login').flush(mockLoginRes);
 

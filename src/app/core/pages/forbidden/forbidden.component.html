@@ -2,12 +2,25 @@
   <mat-card class="forbidden-card">
     <mat-card-content>
       <mat-icon class="forbidden-icon" color="warn">block</mat-icon>
-      <h1>403 — Forbidden</h1>
-      <p>You do not have permission to access this page.</p>
-      <button mat-raised-button color="primary" routerLink="/admin/dashboard">
-        <mat-icon>home</mat-icon>
-        Back to Dashboard
-      </button>
+      <h1>403 — Access Denied</h1>
+      <p class="main-message">
+        You don't have access to this section.
+      </p>
+      @if (user(); as currentUser) {
+        <p class="user-info">
+          Logged in as <strong>{{ currentUser.full_name || currentUser.username }}</strong>
+        </p>
+      }
+      <p class="hint">
+        If you believe this is a mistake, please contact your administrator
+        to request access to this page.
+      </p>
+      <div class="actions">
+        <button mat-raised-button color="primary" routerLink="/admin/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          Back to Dashboard
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

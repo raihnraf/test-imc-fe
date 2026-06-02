@@ -27,8 +27,8 @@ describe('AdminLayoutComponent', () => {
     observe: jasmine.createSpy('observe').and.returnValue(of({ matches: false })),
   };
 
-  const mockLevelService = jasmine.createSpyObj<LevelService>('LevelService', ['list']);
-  mockLevelService.list.and.returnValue(of({ data: [], total: 0, page: 1, perPage: 100 }));
+  const mockLevelService = jasmine.createSpyObj<LevelService>('LevelService', ['listCached']);
+  mockLevelService.listCached.and.returnValue(of([]));
 
   function setupWithPermissions(perms: Record<string, boolean>): void {
     TestBed.resetTestingModule();
